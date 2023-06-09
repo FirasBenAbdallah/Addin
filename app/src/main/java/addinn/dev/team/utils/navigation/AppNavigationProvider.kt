@@ -1,5 +1,6 @@
 package addinn.dev.team.utils.navigation
 
+import addinn.dev.team.presentation.destinations.HomeViewDestination
 import addinn.dev.team.presentation.destinations.LoginViewDestination
 import addinn.dev.team.presentation.destinations.RegisterViewDestination
 import androidx.navigation.NavController
@@ -18,5 +19,9 @@ class AppNavigationProvider(
 
     override fun navigateBack() {
         navController.navigateUp()
+    }
+
+    override fun navigateToHome() {
+        navController.navigateTo(HomeViewDestination)
     }
 }

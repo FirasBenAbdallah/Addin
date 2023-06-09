@@ -264,7 +264,7 @@ fun RegisterView(navigator: NavigationProvider) {
 
             TextButton(
                 onClick = {
-                    /* TODO : implement navigation */
+                    navigator.navigateToHome()
                 },
                 modifier = Modifier
                     .constrainAs(registerBtn) {

@@ -4,4 +4,5 @@ interface NavigationProvider {
     fun navigateToLogin()
     fun navigateToRegister()
     fun navigateBack()
+    fun navigateToHome()
 }
