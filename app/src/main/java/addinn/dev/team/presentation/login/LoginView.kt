@@ -65,9 +65,7 @@ fun LoginView(navigator: NavigationProvider) {
     val passwordVisibility = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    Scaffold(
-        containerColor = Color.White.copy(alpha = 0.5f)
-    ) {
+    Scaffold {
         ConstraintLayout(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 12.dp)
@@ -299,7 +297,7 @@ fun LoginView(navigator: NavigationProvider) {
                 ) {
                     Text(text = "Don't have an account ?", style = TextStyle(fontWeight = FontWeight.W400))
                     TextButton(
-                        onClick = { /*TODO : Navigation */ },
+                        onClick = { navigator.navigateToRegister() },
                         colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF0D5881))
                     ) {
                         Text(text = "Join us", style = TextStyle(fontWeight = FontWeight.W700))
