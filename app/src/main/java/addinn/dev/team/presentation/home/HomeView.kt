@@ -35,7 +35,7 @@ fun HomeView(navigator: NavigationProvider) {
                 BottomBarItem.POLLS -> PollsView(navigator = navigator)
                 BottomBarItem.CHAT -> ChatView(navigator = navigator)
                 BottomBarItem.EVENTS -> EventsView(navigator = navigator)
-                BottomBarItem.PROFILE -> ProfileView(navigator = navigator)
+                BottomBarItem.PROFILE -> ProfileView(/*navigator = navigator*/)
             }
         }
     }
