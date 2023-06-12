@@ -5,4 +5,5 @@ interface NavigationProvider {
     fun navigateToRegister()
     fun navigateBack()
     fun navigateToHome()
+    fun navigateToChat()
 }
