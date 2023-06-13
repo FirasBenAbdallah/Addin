@@ -24,6 +24,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,13 +48,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.imePadding
 import com.ramcosta.composedestinations.annotation.Destination
-import java.time.Instant
 
 
 @Destination
 @Composable
 fun MessagesView() {
-    val scrollState = rememberLazyListState(/*initialFirstVisibleItemIndex = messages.size*/)
     val fakeData = listOf(
         ChatMessage(
             profileUUID = "1",
@@ -126,6 +125,12 @@ fun MessagesView() {
             isMine = true
         )
     )
+    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = fakeData.size)
+// TODO : SCROLL TO LAST ITEM
+    LaunchedEffect(Unit) {
+        scrollState.animateScrollToItem(fakeData.size)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
