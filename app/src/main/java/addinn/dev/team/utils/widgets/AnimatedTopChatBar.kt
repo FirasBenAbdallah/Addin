@@ -67,7 +67,6 @@ fun AnimatedTopChatBar() {
                 Image(
                     painter = painterResource(id = R.drawable.avatar),
                     contentDescription = "avatar",
-                    modifier = Modifier.clickable { /*navigator.goBack()*/ }
                 )
             }
             Text(
