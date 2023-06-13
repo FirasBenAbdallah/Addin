@@ -199,7 +199,7 @@ fun ResetView(navigator: NavigationProvider?) {
                     },
                     placeholder = {
                         Text(
-                            text = "New PassWord",
+                            text = "New PassWord...",
                             style = TextStyle(color = Color.LightGray)
                         )
                     }
