@@ -33,15 +33,15 @@ import androidx.constraintlayout.compose.Dimension.Companion.fillToConstraints
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ChatView(navigator: NavigationProvider) {
+fun ChatView(navigator: NavigationProvider,modifier: Modifier = Modifier) {
 
     val columnScrollState = rememberLazyListState()
     val rowScrollState = rememberLazyListState()
 
-    Scaffold {
+    Scaffold(modifier = modifier) {
         ConstraintLayout(
             modifier = Modifier
-                .padding(vertical = 12.dp, horizontal = 6.dp)
+                .padding( horizontal = 6.dp)
                 .fillMaxSize()
         ) {
             val (welcomeText, usersRow, divider, chatList) = createRefs()
@@ -105,7 +105,7 @@ fun ChatView(navigator: NavigationProvider) {
                         .fillMaxSize(),
                     state = columnScrollState,
                 ) {
-                    items(4) {
+                    items(8) {
                         ConversationItem(navigator = navigator)
                     }
                 }

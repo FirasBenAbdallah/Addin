@@ -8,7 +8,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import com.google.accompanist.insets.navigationBarsHeight
 import com.google.accompanist.insets.navigationBarsPadding
+import com.google.accompanist.insets.navigationBarsWithImePadding
 
 @Composable
 fun HomeBottomNavigation(
@@ -20,6 +22,7 @@ fun HomeBottomNavigation(
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
     ) {
         pages.forEach { page ->
             val selected = page == bottomTab
@@ -31,7 +34,7 @@ fun HomeBottomNavigation(
                     )
                 },
                 label = { Text(page.title) },
-
+                alwaysShowLabel = false,
                 selected = selected,
                 onClick = {
                     setCurrentBottomTab.invoke(page)
