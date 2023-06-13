@@ -1,267 +1,151 @@
 package addinn.dev.team.presentation.channels
 
+import addinn.dev.team.R
 import addinn.dev.team.utils.navigation.NavigationProvider
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChannelsView(navigator: NavigationProvider) {
-    ConstraintLayout(
-        modifier = Modifier
-            .padding(vertical = 12.dp, horizontal = 6.dp)
-            .fillMaxSize()
-    ) {
-        val (channelName, optionsList) = createRefs()
+fun ChannelsView(navigator: NavigationProvider, modifier: Modifier = Modifier) {
 
-        Text(
-            modifier = Modifier.constrainAs(channelName) {
-                top.linkTo(parent.top, margin = 50.dp)
-                start.linkTo(parent.start, margin = 16.dp)
-            }, text = "Mobile dev Channel", style = TextStyle(
-                color = Color.Gray,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
+    val data = listOf(
+        ChannelItem(
+            name = "Main Channel",
+            image = R.drawable.conversation_ill,
+            colors = listOf(
+                Color(0xffBE93C5),
+                Color(0xff7BC6CC),
+            ),
+            onClick = {}),
+        ChannelItem(
+            name = "Shared Files",
+            image = R.drawable.files_ill,
+            colors = listOf(
+                Color(0xff74ebd5),
+                Color(0xffACB6E5),
+            ),
+            onClick = {}),
+        ChannelItem(
+            name = "Members",
+            image = R.drawable.members_ill,
+            colors = listOf(
+                Color(0xffB799FF),
+                Color(0xffACBCFF),
+            ),
+            onClick = {}),
+    )
+
+    Scaffold(modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Mobile dev Channel", style = TextStyle(
+                    fontWeight = FontWeight.W600,
+                    fontSize = 28.sp,
+                    letterSpacing = 1.25.sp
+                )
             )
-        )
 
-        Box(modifier = Modifier.constrainAs(optionsList) {
-            top.linkTo(channelName.bottom, margin = 16.dp)
-            start.linkTo(parent.start, margin = 16.dp)
-            end.linkTo(parent.end, margin = 16.dp)
-        }) {
-            Column(
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(8.dp)
+                    .background(color = Color.LightGray, shape = CircleShape)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.LightGray.copy(alpha = 0.2f)
+                Image(
+                    painter = painterResource(id = R.drawable.mobile_pic),
+                    contentDescription = "Mobile dev Channel",
+                )
+            }
+
+            Text(
+                text = "12 members", style = TextStyle(
+                    fontWeight = FontWeight.Light,
+                    fontSize = 16.sp,
+                )
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(1),
+                contentPadding = PaddingValues(8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp).fillMaxSize()
+            ) {
+                items(data) { item ->
+                    ElevatedCard(
+                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = Color.Transparent
                         )
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = "User",
+                    ) {
+                        Column(
                             modifier = Modifier
-                                .padding(8.dp)
-                                .background(color = Color.White, shape = CircleShape)
-                                .padding(16.dp)
-                        )
-
-                        Text(text = "Conversation", style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W300
-                        ))
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowForward,
-                                contentDescription = "Arrow",
-                                modifier = Modifier.padding(6.dp)
-                                    .background(color = Color.White, shape = CircleShape)
-                                    .padding(12.dp)
+                                .fillMaxSize()
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = item.colors
+                                    )
+                                ),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = item.image),
+                                contentDescription = item.name,
+                                modifier = Modifier.padding(18.dp)
+                            )
+                            Text(
+                                text = item.name,
+                                modifier = Modifier.padding(12.dp),
+                                color = Color.White
                             )
                         }
-
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.LightGray.copy(alpha = 0.2f)
-                        )
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = "User",
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .background(color = Color.White, shape = CircleShape)
-                                .padding(16.dp)
-                        )
-
-                        Text(text = "Files", style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W300
-                        ))
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowForward,
-                                contentDescription = "Arrow",
-                                modifier = Modifier.padding(6.dp)
-                                    .background(color = Color.White, shape = CircleShape)
-                                    .padding(12.dp)
-                            )
-                        }
-
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.LightGray.copy(alpha = 0.2f)
-                        )
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = "User",
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .background(color = Color.White, shape = CircleShape)
-                                .padding(16.dp)
-                        )
-
-                        Text(text = "Images", style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W300
-                        ))
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowForward,
-                                contentDescription = "Arrow",
-                                modifier = Modifier.padding(6.dp)
-                                    .background(color = Color.White, shape = CircleShape)
-                                    .padding(12.dp)
-                            )
-                        }
-
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.LightGray.copy(alpha = 0.2f)
-                        )
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = "User",
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .background(color = Color.White, shape = CircleShape)
-                                .padding(16.dp)
-                        )
-
-                        Text(text = "View members", style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W300
-                        ))
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowForward,
-                                contentDescription = "Arrow",
-                                modifier = Modifier.padding(6.dp)
-                                    .background(color = Color.White, shape = CircleShape)
-                                    .padding(12.dp)
-                            )
-
-
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.LightGray.copy(alpha = 0.2f)
-                        )
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = "User",
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .background(color = Color.White, shape = CircleShape)
-                                .padding(16.dp)
-                        )
-
-                        Text(text = "Create a poll", style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W300
-                        ))
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowForward,
-                                contentDescription = "Arrow",
-                                modifier = Modifier
-                                    .padding(6.dp)
-                                    .background(color = Color.White, shape = CircleShape)
-                                    .padding(12.dp)
-                            )
-
-
                     }
                 }
             }
-        }
 
+
+        }
     }
 }
+
+class ChannelItem(
+    var name: String,
+    var image: Int,
+    var colors: List<Color>,
+    var onClick: () -> Unit
+)
