@@ -1,4 +1,4 @@
-package addinn.dev.team.utils.widgets
+package addinn.dev.team.utils.widgets.chatWidgets
 
 import addinn.dev.team.R
 import android.annotation.SuppressLint

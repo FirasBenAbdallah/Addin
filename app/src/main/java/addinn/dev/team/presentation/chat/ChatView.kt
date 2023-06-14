@@ -2,7 +2,7 @@ package addinn.dev.team.presentation.chat
 
 import addinn.dev.team.R
 import addinn.dev.team.utils.navigation.NavigationProvider
-import addinn.dev.team.utils.widgets.ConversationItem
+import addinn.dev.team.utils.widgets.chatWidgets.ConversationItem
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

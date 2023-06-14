@@ -1,4 +1,4 @@
-package addinn.dev.team.utils.widgets
+package addinn.dev.team.utils.widgets.chatWidgets
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
