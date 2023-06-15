@@ -2,8 +2,11 @@ package addinn.dev.team.presentation.polls
 
 import addinn.dev.team.utils.navigation.NavigationProvider
 import android.annotation.SuppressLint
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,32 +17,41 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
-//@Destination(start = true)
 @Composable
 fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
     val polls = remember { mutableStateListOf<Poll>() }
@@ -70,9 +82,17 @@ fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
                     )
 
                     showPollDetails.value = false
-                }, modifier = Modifier.padding(bottom = 16.dp)
+                },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .clip(RoundedCornerShape(50))
             ) {
-                Text(text = "Create Poll")
+//                Text(text = "Create Poll")
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = "Create Poll",
+                    modifier = Modifier.size(24.dp)
+                )
             }
 
             polls.forEachIndexed { index, poll ->
@@ -111,12 +131,6 @@ fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
             votes.forEachIndexed { index, poll ->
                 if (showPollDetails.value) {
                     PollsDetailsView(poll = poll)
-                    // Button
-                    /*Button(
-                        onClick = { }, modifier = Modifier.padding(top = 16.dp)
-                    ) {
-                        Text(text = "Submit Vote")
-                    }*/
                 }
             }
         }
@@ -124,23 +138,17 @@ fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
     }
 }
 
-data class Poll(
-    val question: MutableState<String>,
-    val choices: MutableList<MutableState<String>>,
-    var selectedOption: String = ""
-)
 
 @Composable
-fun PollsDetailsView(poll: Poll) {
+fun PollsDetailsView(poll: Poll,modifier: Modifier = Modifier) {
     val isTextVisible = remember { mutableStateOf(false) }
     val composedChoicesText = remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .padding(16.dp)
-
             .fillMaxWidth()
-            .background(Color.LightGray, shape = MaterialTheme.shapes.large)
+            .background(Color.LightGray, shape = shapes.extraLarge)
             .padding(16.dp)
     ) {
         // Poll question label
@@ -152,25 +160,26 @@ fun PollsDetailsView(poll: Poll) {
 
         // Poll choices radio buttons
         poll.choices.forEachIndexed { index, choice ->
-            Row(
+            AdvancedRadioButton(
+                text = choice.value,
+                isSelected = poll.selectedOptionIndex.value == index,
+                onSelected = {
+                    poll.selectedOptionIndex.value = index
+                    isTextVisible.value = true
+                },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                RadioButton(
-                    selected = poll.selectedOption == choice.value,
-                    onClick = {
-                        poll.selectedOption = choice.value
-                        isTextVisible.value = true
-                    },
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = choice.value)
-            }
+            )
+
         }
 
-        // Button
+
+        // Button Submit Vote
         Button(
             onClick = {
+                poll.selectedOptionIndex.value?.let { selectedIndex ->
+                    poll.selectionCounts[selectedIndex].value++
+                    poll.totalSelectionCount.value++
+                }
                 composedChoicesText.value = poll.choices.joinToString("\n") { it.value }
             },
             modifier = Modifier.padding(top = 16.dp)
@@ -178,260 +187,108 @@ fun PollsDetailsView(poll: Poll) {
             Text(text = "Submit Vote")
         }
 
-        if (isTextVisible.value) {
+        // Poll choices text
+        if (poll.totalSelectionCount.value > 0) {
+            poll.choices.forEachIndexed { index, choice ->
+                val stat =
+                    poll.selectionCounts[index].value / poll.totalSelectionCount.value.toFloat() * 100
+                val statString = String.format("%.2f", stat)
+                Text(
+                    text = "${choice.value}: ${statString}%",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        } else {
             Text(
-                text = "Selected Choices:\n${composedChoicesText.value}",
+                text = "No votes yet",
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
+
+        Text(
+            text = "Total Votes: ${poll.totalSelectionCount.value}",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(top = 8.dp),
+            color = colorScheme.onBackground
+        )
+
+
     }
 }
 
+@Composable
+fun AdvancedRadioButton(
+    text: String,
+    isSelected: Boolean,
+    onSelected: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val scale by animateDpAsState(if (isSelected) 1.1.dp else 1.dp)
+    val color by animateColorAsState(
+        if (isSelected) colorScheme.primary else colorScheme.surface
+    )
 
-//@Destination(start = true)
-/*@Composable
-fun PollsView(navigator: NavigationProvider?) {
-    val polls = remember { mutableStateListOf<Poll>() }
-    val showPollDetails = remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-            .fillMaxSize()
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = { onSelected() }
+            )
     ) {
-        Button(
-            onClick = {
-                polls.add(Poll(mutableStateOf(""), mutableListOf(mutableStateOf(""), mutableStateOf(""), mutableStateOf(""))))
-                showPollDetails.value = false
-            },
-            modifier = Modifier.padding(bottom = 16.dp)
+        Surface(
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape)
+                .scale(scale.value)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = { onSelected() }
+                ),
+            color = color
         ) {
-            Text(text = "Create Poll")
-        }
-
-        polls.forEachIndexed { index, poll ->
-            Column(modifier = Modifier.padding(vertical = 16.dp)) {
-                Text(text = "Poll ${index + 1}", fontWeight = FontWeight.Bold)
-
-                // Display the poll question
-                OutlinedTextField(
-                    value = poll.question.value,
-                    onValueChange = { value -> poll.question.value = value },
-                    label = { Text("Question") },
-                    modifier = Modifier.padding(top = 8.dp)
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Selected",
+                    tint = Color.White,
+                    modifier = Modifier.padding(4.dp)
                 )
-
-                // Display the poll choices
-                poll.choices.forEachIndexed { choiceIndex, choice ->
-                    OutlinedTextField(
-                        value = choice.value,
-                        onValueChange = { value -> poll.choices[choiceIndex].value = value },
-                        label = { Text("Choice ${choiceIndex + 1}") },
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
-                Button(
-                    onClick = { showPollDetails.value = true },
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    println(showPollDetails.value)
-                    Text(text = "View Polls")
-                }
-
-                if (showPollDetails.value) {
-                    PollsDetailsView(poll)
-//                    showPollDetails.value = false
-                    println(showPollDetails.value)
-                }
             }
         }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = text,
+            fontSize = 16.sp,
+            color = if (isSelected) colorScheme.primary else colorScheme.onSurface.copy(alpha = 1f),
+            modifier = Modifier.alpha(if (isSelected) 1f else 0.6f)
+        )
     }
 }
 
 data class Poll(
     val question: MutableState<String>,
     val choices: MutableList<MutableState<String>>,
-    var selectedOption: String = ""
+    var selectedOptionIndex: MutableState<Int?> = mutableStateOf(null),
+    var selectionCounts: MutableList<MutableState<Int>> = MutableList(choices.size) {
+        mutableStateOf(
+            0
+        )
+    },
+    var totalSelectionCount: MutableState<Int> = mutableStateOf(0)
 )
-
-private fun viewPolls(poll: Poll) {
-    // Handle the action to view polls
-    println("Viewing Polls - Question: ${poll.question.value}, Choices: ${poll.choices.map { it.value }}")
-}
-
-@Composable
-fun PollsDetailsView(poll: Poll) {
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .padding(16.dp)
-    ) {
-        // Poll question label
-        Text(
-            text = "Question: ${poll.question.value}",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        // Poll choices radio buttons
-        poll.choices.forEachIndexed { index, choice ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                RadioButton(
-                    selected = poll.selectedOption.equals(choice.toString()) ,
-                    onClick = { poll.selectedOption = choice.toString() },
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(text = choice.value)
-            }
-        }
-
-        // Button
-        Button(
-            onClick = { *//* Handle button click *//* },
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Text(text = "Submit Vote")
-        }
-    }
-}*/
-
-
-/*fun PollsView(navigator: NavigationProvider?) {
-    val selectedChoice = remember { mutableStateOf("") }
-    val showLabel = selectedChoice.value.isNotBlank()
-    val red = remember { mutableStateOf(0) }
-    val blue = remember { mutableStateOf(0) }
-    val green = remember { mutableStateOf(0) }
-
-    val pollQuestion = remember { mutableStateOf("") }
-    val pollChoices = remember { mutableStateOf(listOf("", "", "")) }
-
-    Scaffold {
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "What is your favorite color?",
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                ChoiceItem(text = "Red", selectedChoice.value == "Red") {
-                    selectedChoice.value = "Red"
-                }
-                ChoiceItem(text = "Blue", selectedChoice.value == "Blue") {
-                    selectedChoice.value = "Blue"
-                }
-                ChoiceItem(text = "Green", selectedChoice.value == "Green") {
-                    selectedChoice.value = "Green"
-                }
-
-                Button(
-                    onClick = {
-                        when (selectedChoice.value) {
-                            "Red" -> red.value++
-                            "Blue" -> blue.value++
-                            "Green" -> green.value++
-                            else -> {
-                                // Handle the action for the other choices
-                                println("Action for the other choices")
-                            }
-                        }
-                    },
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text(text = "View Polls")
-                }
-                val pollsResult = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Polls result:\n")
-                    }
-                    append("Red: ${red.value}\n")
-                    append("Blue: ${blue.value}\n")
-                    append("Green: ${green.value}\n")
-                }
-
-                if (red.value > 0 || blue.value > 0 || green.value > 0) {
-                    Text(
-                        text = pollsResult,
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        val question = pollQuestion.value
-                        val choices = pollChoices.value.filter { it.isNotBlank() }
-                        // Create the new poll using the question and choices
-                        // You can implement the desired logic here
-                        println("New Poll: Question - $question, Choices - $choices")
-                    },
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text(text = "Create Poll")
-                }
-
-                TextField(
-                    value = pollQuestion.value,
-                    onValueChange = { pollQuestion.value = it },
-                    label = { Text("Question") },
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-
-                for (i in pollChoices.value.indices) {
-                    TextField(
-                        value = pollChoices.value[i],
-                        onValueChange = { newValue ->
-                            val updatedChoices = pollChoices.value.toMutableList()
-                            updatedChoices[i] = newValue
-                            pollChoices.value = updatedChoices
-                        },
-                        label = { Text("Choice ${i + 1}") },
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
-            }
-        }
-    }
-}*/
-
-/*@Composable
-fun ChoiceItem(text: String, selected: Boolean, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .padding(vertical = 8.dp)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        RadioButton(
-            selected = selected,
-            onClick = null,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = text)
-    }
-}*/
-
 
 /*
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ResetPreview() {
-    PollsView(null)
+    PollsDetailsView(null)
 }
 */
