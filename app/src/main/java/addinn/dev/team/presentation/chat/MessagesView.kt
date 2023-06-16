@@ -1,6 +1,6 @@
 package addinn.dev.team.presentation.chat
 
-import addinn.dev.team.utils.staticModels.fakeData
+import addinn.dev.team.utils.staticModels.fakeMessagesData
 import addinn.dev.team.utils.widgets.chatWidgets.AnimatedTopChatBar
 import addinn.dev.team.utils.widgets.chatWidgets.ChatInput
 import addinn.dev.team.utils.widgets.chatWidgets.MyMessageItem
@@ -23,10 +23,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 @Composable
 fun MessagesView() {
 
-    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = fakeData.size)
+    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = fakeMessagesData.size)
 // TODO : SCROLL TO LAST ITEM
     LaunchedEffect(Unit) {
-        scrollState.animateScrollToItem(fakeData.size)
+        scrollState.animateScrollToItem(fakeMessagesData.size)
     }
 
     Column(
@@ -43,7 +43,7 @@ fun MessagesView() {
                 .fillMaxWidth(),
             state = scrollState
         ) {
-            items(fakeData) { message ->
+            items(fakeMessagesData) { message ->
                 when (message.isMine) {
                     true -> {
                         MyMessageItem(message = message)

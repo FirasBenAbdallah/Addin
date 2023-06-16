@@ -6,4 +6,5 @@ interface NavigationProvider {
     fun navigateBack()
     fun navigateToHome()
     fun navigateToChat()
+    fun navigateToMembers()
 }

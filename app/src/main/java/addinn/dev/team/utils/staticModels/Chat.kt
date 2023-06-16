@@ -1,7 +1,7 @@
 package addinn.dev.team.utils.staticModels
 
 enum class MessageStatus {
-    RECEIVED, READ
+    RECEIVED, READ, SENT, ERROR
 }
 
 data class ChatRowData(
@@ -31,7 +31,75 @@ data class ChatMessage(
     var isMine: Boolean = false
 )
 
-val fakeData = listOf(
+data class ConversationChat(
+    val username: String = "",
+    var lastMessage: String = "",
+    var amILastSender: Boolean = false,
+    var date: String = "",
+    var status: MessageStatus,
+    var isOnline: Boolean = false
+)
+
+val fakeConversationData = listOf<ConversationChat>(
+    ConversationChat(
+        username = "Random User",
+        lastMessage = "Hello!",
+        amILastSender = false,
+        date = "12:00",
+        status = MessageStatus.READ,
+        isOnline = true
+    ),
+    ConversationChat(
+        username = "Random User2",
+        lastMessage = "Are you there?",
+        amILastSender = true,
+        date = "12:05",
+        status = MessageStatus.ERROR,
+        isOnline = false
+    ),
+    ConversationChat(
+        username = "Random User3",
+        lastMessage = "Hello!",
+        amILastSender = false,
+        date = "12:30",
+        status = MessageStatus.READ,
+        isOnline = true
+    ),
+    ConversationChat(
+        username = "Random User4",
+        lastMessage = "See you there!",
+        amILastSender = false,
+        date = "12:50",
+        status = MessageStatus.READ,
+        isOnline = true
+    ),
+    ConversationChat(
+        username = "Random User4",
+        lastMessage = "OKay!",
+        amILastSender = false,
+        date = "12:23",
+        status = MessageStatus.READ,
+        isOnline = true
+    ),
+    ConversationChat(
+        username = "Random User5",
+        lastMessage = "What ?",
+        amILastSender = true,
+        date = "11:10",
+        status = MessageStatus.SENT,
+        isOnline = false
+    ),
+    ConversationChat(
+        username = "Random User6",
+        lastMessage = "Hello!",
+        amILastSender = false,
+        date = "11:00",
+        status = MessageStatus.RECEIVED,
+        isOnline = true
+    ),
+)
+
+val fakeMessagesData = listOf<ChatMessage>(
     ChatMessage(
         profileUUID = "1",
         message = "Hello!",

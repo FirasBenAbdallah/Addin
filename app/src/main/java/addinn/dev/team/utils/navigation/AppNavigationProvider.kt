@@ -1,9 +1,6 @@
 package addinn.dev.team.utils.navigation
 
-import addinn.dev.team.presentation.destinations.HomeViewDestination
-import addinn.dev.team.presentation.destinations.LoginViewDestination
-import addinn.dev.team.presentation.destinations.MessagesViewDestination
-import addinn.dev.team.presentation.destinations.RegisterViewDestination
+import addinn.dev.team.presentation.destinations.*
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.navigation.navigateTo
 
@@ -28,5 +25,9 @@ class AppNavigationProvider(
 
     override fun navigateToChat() {
         navController.navigateTo(MessagesViewDestination)
+    }
+
+    override fun navigateToMembers() {
+        navController.navigateTo(MembersViewDestination)
     }
 }

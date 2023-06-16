@@ -2,6 +2,8 @@ package addinn.dev.team.utils.widgets.chatWidgets
 
 import addinn.dev.team.R
 import addinn.dev.team.utils.navigation.NavigationProvider
+import addinn.dev.team.utils.staticModels.ConversationChat
+import addinn.dev.team.utils.staticModels.MessageStatus
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,20 +32,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ConversationItem(navigator: NavigationProvider) {
+fun ConversationItem(navigator: NavigationProvider, message: ConversationChat) {
     Box(modifier = Modifier.clickable {
-            // TODO: ADD NAVIGATION
+        // TODO: ADD NAVIGATION
         navigator.navigateToChat()
-        }) {
+    }) {
         Row(
             modifier = Modifier.padding(
-                    horizontal = 12.dp, vertical = 12.dp
-                ), verticalAlignment = Alignment.CenterVertically
+                horizontal = 12.dp, vertical = 12.dp
+            ), verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                modifier = Modifier.size(80.dp), shape = CircleShape
+                modifier = Modifier.size(70.dp), shape = CircleShape
             ) {
-                Box(modifier = Modifier.background(color = Color.LightGray.copy(0.5f), shape = CircleShape)) {
+                Box(
+                    modifier = Modifier.background(
+                        color = Color.LightGray.copy(0.3f),
+                        shape = CircleShape
+                    )
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.avatar),
                         contentDescription = "avatar",
@@ -62,35 +69,89 @@ fun ConversationItem(navigator: NavigationProvider) {
             ) {
                 Column {
                     Text(
-                        text = "username",
+                        text = message.username,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "recent message ",
-                        style = TextStyle(
-                            fontWeight = FontWeight.Light
+                    if (message.amILastSender) {
+                        Text(
+                            text = "You: ${message.lastMessage}",
+                            style = TextStyle(
+                                fontWeight = FontWeight.Light
+                            )
                         )
-                    )
+                    } else {
+                        Text(
+                            text = message.lastMessage,
+                            style = TextStyle(
+                                fontWeight = FontWeight.Light
+                            )
+                        )
+                    }
+
                 }
                 Column {
                     Text(
-                        text = "12:00",
+                        text = message.date,
                         fontWeight = FontWeight.ExtraLight,
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_mark_chat_unread_24),
-                        tint = Color(0xFF0D5881),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
+                    when (message.status) {
+                        MessageStatus.RECEIVED -> {
+                            MessageStatusIcon(
+                                iconId = R.drawable.baseline_check_circle_24,
+                                iconColor = Color.Gray,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        }
+
+                        MessageStatus.READ -> {
+                            MessageStatusIcon(
+                                iconId = R.drawable.baseline_check_24,
+                                iconColor = Color.Gray,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        }
+
+                        MessageStatus.SENT -> {
+                            MessageStatusIcon(
+                                iconId = R.drawable.baseline_check_circle_outline_24,
+                                iconColor = Color.Gray,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        }
+
+                        MessageStatus.ERROR -> {
+                            MessageStatusIcon(
+                                iconId = R.drawable.outline_error_24,
+                                iconColor = Color.Red,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        }
+                    }
+
                 }
             }
         }
     }
+}
+
+@Composable
+fun MessageStatusIcon(modifier: Modifier = Modifier, iconId: Int, iconColor: Color) {
+    Icon(
+        painter = painterResource(id = iconId),
+        tint = iconColor,
+        contentDescription = null,
+        modifier = modifier
+    )
 }
 
