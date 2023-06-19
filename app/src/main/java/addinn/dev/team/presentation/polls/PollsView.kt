@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -44,8 +47,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -54,9 +61,13 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
+    val focusManager = LocalFocusManager.current
     val polls = remember { mutableStateListOf<Poll>() }
     val votes = remember { mutableStateListOf<Poll>() }
     val showPollDetails = remember { mutableStateOf(false) }
+    val showPoll = remember { mutableStateOf(false) }
+    val showCount = remember { mutableStateOf(false) }
+    val choiceCountInput = remember { mutableStateOf("") }
 
 
     Scaffold(modifier = modifier) {
@@ -69,18 +80,7 @@ fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
         ) {
             Button(
                 onClick = {
-                    polls.clear()
-                    polls.add(
-                        Poll(
-                            mutableStateOf(""),
-                            mutableListOf(
-                                mutableStateOf(""),
-                                mutableStateOf(""),
-                                mutableStateOf("")
-                            )
-                        )
-                    )
-
+                    showCount.value = true
                     showPollDetails.value = false
                 },
                 modifier = Modifier
@@ -95,40 +95,109 @@ fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
                 )
             }
 
+
+            if (showCount.value) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(end = 16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = choiceCountInput.value,
+                        onValueChange = { value ->
+                            choiceCountInput.value = value
+                        },
+                        label = { Text("Number of Choices") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(onDone = {
+                            showPoll.value = true
+                            val choiceCount = choiceCountInput.value.toIntOrNull() ?: 0
+                            val choices = MutableList(choiceCount) { mutableStateOf("") }
+                            polls.clear()
+                            polls.add(
+                                Poll(
+                                    mutableStateOf(""),
+                                    choices
+                                )
+                            )
+                            focusManager.clearFocus()
+                        }),
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    /*Button(onClick = {
+
+                    }) {
+                        Text(text = "Ok")
+                    }*/
+                }
+            }
+
+
             polls.forEachIndexed { index, poll ->
-                Column(modifier = Modifier.padding(vertical = 16.dp)) {
-                    if (!showPollDetails.value) {
-                        Text(text = "Poll ${index + 1}", fontWeight = FontWeight.Bold)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    ) {
+                        if (showPoll.value) {
+                            Text(text = "Poll ${index + 1}", fontWeight = FontWeight.Bold)
 
-                        // Display the poll question
-                        OutlinedTextField(
-                            value = poll.question.value,
-                            onValueChange = { value -> poll.question.value = value },
-                            label = { Text("Question") },
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-
-                        // Display the poll choices
-                        poll.choices.forEachIndexed { choiceIndex, choice ->
+                            // Display the poll question
                             OutlinedTextField(
-                                value = choice.value,
-                                onValueChange = { value ->
-                                    poll.choices[choiceIndex].value = value
-                                },
-                                label = { Text("Choice ${choiceIndex + 1}") },
+                                value = poll.question.value,
+                                onValueChange = { value -> poll.question.value = value },
+                                label = { Text("Question") },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                ),
+                                keyboardActions = KeyboardActions(onNext = {
+                                    focusManager.moveFocus(FocusDirection.Next)
+                                }),
                                 modifier = Modifier.padding(top = 8.dp)
                             )
-                        }
-                        Button(
-                            onClick = { showPollDetails.value = true; votes.add(poll) },
-                            modifier = Modifier.padding(top = 16.dp)
-                        ) {
-                            Text(text = "View Polls")
+
+                            // Display the poll choices
+                            poll.choices.forEachIndexed { choiceIndex, choice ->
+                                OutlinedTextField(
+                                    value = choice.value,
+                                    onValueChange = { value ->
+                                        poll.choices[choiceIndex].value = value
+                                    },
+                                    label = { Text("Choice ${choiceIndex + 1}") },
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Text,
+                                        imeAction = ImeAction.Next
+                                    ),
+                                    keyboardActions = KeyboardActions(onNext = {
+                                        focusManager.moveFocus(FocusDirection.Next)
+                                    }),
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                            }
+                            Button(
+                                onClick = {
+                                    showPollDetails.value = true
+                                    showCount.value = false
+                                    showPoll.value = false
+                                    votes.add(poll)
+                                },
+                                modifier = Modifier.padding(top = 16.dp)
+                            ) {
+                                Text(text = "View Polls")
+                            }
                         }
                     }
                 }
             }
-            votes.forEachIndexed { index, poll ->
+            votes.forEachIndexed { _, poll ->
                 if (showPollDetails.value) {
                     PollsDetailsView(poll = poll)
                 }
@@ -140,21 +209,22 @@ fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
 
 
 @Composable
-fun PollsDetailsView(poll: Poll,modifier: Modifier = Modifier) {
+fun PollsDetailsView(poll: Poll, modifier: Modifier = Modifier) {
     val isTextVisible = remember { mutableStateOf(false) }
     val composedChoicesText = remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
-            .padding(16.dp)
             .fillMaxWidth()
             .background(Color.LightGray, shape = shapes.extraLarge)
             .padding(16.dp)
     ) {
         // Poll question label
         Text(
-            text = "Question: ${poll.question.value}",
+            text = poll.question.value,
             fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
