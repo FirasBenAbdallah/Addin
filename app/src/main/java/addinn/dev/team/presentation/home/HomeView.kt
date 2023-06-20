@@ -35,7 +35,7 @@ fun HomeView(navigator: NavigationProvider) {
             val modifier = Modifier.padding(it)
             when (bottomTab) {
                 BottomBarItem.CHANNELS -> ChannelsView(navigator = navigator)
-                BottomBarItem.POLLS -> PollsView(navigator = navigator, modifier = modifier)
+                BottomBarItem.POLLS -> PollsView(/*navigator = navigator,*/ modifier = modifier)
                 BottomBarItem.CHAT -> ChatView(navigator = navigator)
                 BottomBarItem.EVENTS -> EventsView(navigator = navigator)
                 BottomBarItem.PROFILE -> ProfileView(/*navigator = navigator*/ modifier = modifier)

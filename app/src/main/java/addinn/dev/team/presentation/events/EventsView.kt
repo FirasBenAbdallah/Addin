@@ -1,6 +1,5 @@
 package addinn.dev.team.presentation.events
 
-import addinn.dev.team.presentation.recoverPass.ResetView
 import addinn.dev.team.utils.navigation.NavigationProvider
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

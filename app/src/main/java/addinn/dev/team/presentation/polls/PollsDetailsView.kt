@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun PollsDetailsView(poll: PollData, modifier: Modifier = Modifier) {
+fun PollsDetailsView(poll: PollData/*, modifier: Modifier = Modifier*/) {
 
     // Local variables
     val isTextVisible = remember { mutableStateOf(false) }

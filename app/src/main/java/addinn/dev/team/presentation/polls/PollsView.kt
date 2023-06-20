@@ -1,6 +1,5 @@
 package addinn.dev.team.presentation.polls
 
-import addinn.dev.team.utils.navigation.NavigationProvider
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,7 +38,7 @@ import androidx.compose.ui.unit.dp
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PollsView(navigator: NavigationProvider?, modifier: Modifier = Modifier) {
+fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier) {
 
     // Local variables
     val focusManager = LocalFocusManager.current

@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Button
