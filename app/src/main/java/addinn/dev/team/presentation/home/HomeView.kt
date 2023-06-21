@@ -25,7 +25,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 @Composable
 fun HomeView(navigator: NavigationProvider) {
     val (currentBottomTab, setCurrentBottomTab) = rememberSaveable {
-        mutableStateOf(BottomBarItem.POLLS)
+        mutableStateOf(BottomBarItem.PROFILE)
     }
 
     Crossfade(currentBottomTab) { bottomTab ->

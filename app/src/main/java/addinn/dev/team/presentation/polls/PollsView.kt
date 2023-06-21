@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -14,31 +16,47 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier) {
+
+    // Drop down menu
+    val listOfChoice = listOf("2", "3", "4", "5", "6", "7", "8", "9", "10")
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember { mutableStateOf("") }
 
     // Local variables
     val focusManager = LocalFocusManager.current
@@ -47,7 +65,7 @@ fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier)
     val showPollDetails = remember { mutableStateOf(false) }
     val showPoll = remember { mutableStateOf(false) }
     val showCount = remember { mutableStateOf(false) }
-    val choiceCountInput = remember { mutableStateOf("") }
+//    val choiceCountInput = remember { mutableStateOf("") }
 
     // Composable functions
     Scaffold(modifier = modifier) {
@@ -77,7 +95,7 @@ fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier)
 
             // Polls Number of Choices
             if (showCount.value) {
-                Column(
+                /*Column(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(end = 16.dp)
@@ -107,11 +125,68 @@ fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier)
                         }),
                         modifier = Modifier.padding(top = 8.dp)
                     )
-                    /*Button(onClick = {
+                }*/
+                Box(
+                    modifier = Modifier
+                        .width(250.dp)
+                        .shadow(0.dp, shape = RoundedCornerShape(8.dp), clip = true)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
+                    ) {
+                        OutlinedTextField(
+                            value = selectedText,
+                            onValueChange = {},
+                            shape = RoundedCornerShape(10.dp),
+                            readOnly = true,
+                            label = { Text("Choice number") },
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = Color.LightGray,
+                                unfocusedBorderColor = Color.LightGray
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            textStyle = TextStyle(fontSize = 16.sp),
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Outlined.List,
+                                    contentDescription = "Home",
+                                    tint = Color.Gray
+                                )
+                            },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                            }
+                        )
 
-                    }) {
-                        Text(text = "Ok")
-                    }*/
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            listOfChoice.forEach { item ->
+                                DropdownMenuItem(
+                                    text = { Text(text = item) },
+                                    onClick = {
+                                        selectedText = item
+                                        expanded = false
+                                        showPoll.value = true
+                                        val choices =
+                                            MutableList(item.toInt()) { mutableStateOf("") }
+                                        polls.clear()
+                                        polls.add(
+                                            PollData(
+                                                mutableStateOf(""),
+                                                choices
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
