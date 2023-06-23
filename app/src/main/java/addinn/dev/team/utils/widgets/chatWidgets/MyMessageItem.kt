@@ -1,8 +1,9 @@
 package addinn.dev.team.utils.widgets.chatWidgets
 
 import addinn.dev.team.utils.staticModels.ChatMessage
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,9 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.ModalBottomSheetLayout
+import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialNavigationApi::class)
 @Composable
-fun MyMessageItem(message: ChatMessage) {
+fun MyMessageItem(message: ChatMessage, onLongPress: () -> Unit) {
+
     Column(
         horizontalAlignment = Alignment.End,
         modifier = Modifier
@@ -29,14 +35,20 @@ fun MyMessageItem(message: ChatMessage) {
                 top = 8.dp,
                 bottom = 8.dp
             )
+
     ) {
-        // This is chat bubble
 
         ChatBubbleConstraints(
             modifier = Modifier
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp))
                 .background(MaterialTheme.colorScheme.primaryContainer)
-                .clickable { },
+                .combinedClickable(
+                    onClick = {
+                    },
+                    onLongClick = {
+                        onLongPress()
+                    },
+                ),
             content = {
                 TextMessageInsideBubble(
                     modifier = Modifier.padding(

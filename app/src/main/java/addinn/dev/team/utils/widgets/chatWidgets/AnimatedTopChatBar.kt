@@ -1,12 +1,19 @@
 package addinn.dev.team.utils.widgets.chatWidgets
 
+import addinn.dev.team.R
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -24,8 +31,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import addinn.dev.team.R
 import androidx.compose.ui.unit.sp
 
 @Composable
@@ -60,7 +67,8 @@ fun AnimatedTopChatBar() {
         ) {
             Box(
                 modifier = Modifier
-                    .background(Color(0xFF0D5881), shape = CircleShape).padding(top = 8.dp),
+                    .background(Color(0xFF0D5881), shape = CircleShape)
+                    .padding(top = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
 
@@ -88,7 +96,7 @@ fun AnimatedTopChatBar() {
                         horizontalArrangement = Arrangement.SpaceAround,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //first
+
                         Box(
                             modifier = Modifier.background(
                                 color = Color.LightGray.copy(alpha = 0.35f),
@@ -97,9 +105,10 @@ fun AnimatedTopChatBar() {
                         ) {
                             IconButton(
                                 onClick = {},
-                            ){
-                                Icon(imageVector = ImageVector.vectorResource(id = R.drawable.outline_menu_24),
-                                    contentDescription = "Call Icon",
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.outline_search_24),
+                                    contentDescription = "search Icon",
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .size(40.dp),
@@ -108,7 +117,6 @@ fun AnimatedTopChatBar() {
                             }
                         }
 
-                        //second
                         Box(
                             modifier = Modifier.background(
                                 color = Color.LightGray.copy(alpha = 0.35f),
@@ -117,16 +125,17 @@ fun AnimatedTopChatBar() {
                         ) {
                             IconButton(
                                 onClick = {},
-                            ){
-                                Icon(imageVector = ImageVector.vectorResource(id = R.drawable.outline_menu_24),
-                                    contentDescription = "Video Icon",
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.outline_image_24),
+                                    contentDescription = "image Icon",
                                     modifier = Modifier
                                         .padding(8.dp)
-                                        .size(40.dp),tint = Color.White)
+                                        .size(40.dp), tint = Color.White
+                                )
                             }
                         }
 
-                        //third
                         Box(
                             modifier = Modifier.background(
                                 color = Color.LightGray.copy(alpha = 0.35f),
@@ -135,30 +144,14 @@ fun AnimatedTopChatBar() {
                         ) {
                             IconButton(
                                 onClick = {},
-                            ){
-                                Icon(imageVector = ImageVector.vectorResource(id = R.drawable.outline_menu_24),
-                                    contentDescription = "Bulb Icon",
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.outline_settings_24),
+                                    contentDescription = "settings Icon",
                                     modifier = Modifier
                                         .padding(8.dp)
-                                        .size(40.dp),tint = Color.White)
-                            }
-                        }
-
-                        //last
-                        Box(
-                            modifier = Modifier.background(
-                                color = Color.LightGray.copy(alpha = 0.35f),
-                                shape = RoundedCornerShape(14.dp)
-                            )
-                        ) {
-                            IconButton(
-                                onClick = {},
-                            ){
-                                Icon(imageVector = ImageVector.vectorResource(id = R.drawable.outline_menu_24),
-                                    contentDescription = "Menu Icon",
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .size(40.dp),tint = Color.White)
+                                        .size(40.dp), tint = Color.White
+                                )
                             }
                         }
                     }
@@ -166,4 +159,10 @@ fun AnimatedTopChatBar() {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AnimatedPreview() {
+    AnimatedTopChatBar()
 }

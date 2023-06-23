@@ -56,7 +56,7 @@ fun ChatInput(
                 disabledIndicatorColor = Color.Transparent
             ),
             placeholder = {
-                Text(text = "...")
+                Text(text = "type ...")
             },
             leadingIcon = {
                 IconButton(onClick = {
