@@ -7,4 +7,6 @@ interface NavigationProvider {
     fun navigateToHome()
     fun navigateToRecoverPass()
     fun navigateToResetPass()
+    fun navigateToChat()
+    fun navigateToMembers()
 }
