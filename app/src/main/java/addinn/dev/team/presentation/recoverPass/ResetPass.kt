@@ -19,9 +19,11 @@ import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -205,7 +207,7 @@ fun ResetView(navigator: NavigationProvider?) {
             }
 
             // Reset Button
-            Button(
+            TextButton(
                 onClick = { navigator?.navigateToLogin() },
                 modifier = Modifier
                     .constrainAs(resetButton) {
@@ -217,7 +219,7 @@ fun ResetView(navigator: NavigationProvider?) {
                         color = Color(0xFF0D5881),
                         shape = RoundedCornerShape(10.dp)
                     )
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             ) {
                 Text(
                     text = "Reset Password",

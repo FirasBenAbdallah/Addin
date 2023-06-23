@@ -1,6 +1,7 @@
 package addinn.dev.team.presentation.profile
 
 import addinn.dev.team.R
+import addinn.dev.team.presentation.destinations.Destination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
@@ -48,7 +49,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileView(
     /*navigator: NavigationProvider*/
-
     modifier: Modifier = Modifier
 ) {
     val (names, setNames) = remember { mutableStateOf("Firas") }
@@ -484,6 +484,7 @@ fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }
+
 
 /*@Preview(showBackground = true, showSystemUi = true)
 @Composable
