@@ -1,4 +1,4 @@
-package addinn.dev.team.presentation.login
+package addinn.dev.team.presentation.recoverPass
 
 import addinn.dev.team.R
 import addinn.dev.team.utils.navigation.NavigationProvider
@@ -6,25 +6,20 @@ import addinn.dev.team.utils.widgets.PasswordToggleIcon
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material.icons.outlined.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,10 +28,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -48,6 +40,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -56,13 +49,12 @@ import com.ramcosta.composedestinations.annotation.Destination
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination(start = true)
+@Destination
 @Composable
-fun LoginView(navigator: NavigationProvider?) {
+fun ResetView(navigator: NavigationProvider?) {
 
-    // UI
-    val username = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
+    val code = remember { mutableStateOf("") }
+    val newpass = remember { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
@@ -72,8 +64,7 @@ fun LoginView(navigator: NavigationProvider?) {
                 .padding(horizontal = 12.dp, vertical = 12.dp)
                 .fillMaxSize()
         ) {
-            val (logo, welcomeText,secondText, emailField, passwordField, recoverPassword, loginBtn, divider,fingerprintAuth, registerBtn) = createRefs()
-
+            val (logo, welcomeText, secondText, codeField, passwordField, resetButton) = createRefs()
             // Logo
             Image(
                 painter = painterResource(R.drawable.logo),
@@ -93,7 +84,7 @@ fun LoginView(navigator: NavigationProvider?) {
             )
             // Welcome Text
             Text(
-                text = "Welcome back!",
+                text = "Reset your password",
                 modifier = Modifier.constrainAs(welcomeText) {
                     top.linkTo(logo.bottom, margin = 16.dp)
                     start.linkTo(parent.start)
@@ -105,10 +96,9 @@ fun LoginView(navigator: NavigationProvider?) {
                     fontWeight = FontWeight.W600
                 )
             )
-
             // Second Text
             Text(
-                text = "Connect with your team faster!",
+                text = "Write code received in your email",
                 modifier = Modifier.constrainAs(secondText) {
                     top.linkTo(welcomeText.bottom, margin = 8.dp)
                     start.linkTo(parent.start)
@@ -121,27 +111,25 @@ fun LoginView(navigator: NavigationProvider?) {
                 )
             )
 
-            // Email Field
+            // Code field
             Box(
                 modifier = Modifier
-                    .constrainAs(emailField) {
-                        top.linkTo(secondText.bottom, margin = 65.dp)
+                    .constrainAs(codeField) {
+                        top.linkTo(secondText.bottom, margin = 150.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                    .fillMaxWidth()
-                    .shadow(0.dp, shape = RoundedCornerShape(8.dp), clip = true)
             ) {
                 OutlinedTextField(
-                    value = username.value,
-                    onValueChange = { username.value = it },
+                    value = code.value,
+                    onValueChange = { code.value = it },
                     shape = RoundedCornerShape(8.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = Color.LightGray,
                         unfocusedBorderColor = Color.LightGray
                     ),
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(onNext = {
@@ -151,35 +139,33 @@ fun LoginView(navigator: NavigationProvider?) {
                     textStyle = TextStyle(fontSize = 16.sp),
                     leadingIcon = {
                         Icon(
-                            Icons.Outlined.Person,
-                            contentDescription = "person",
+                            Icons.Outlined.Send,
+                            contentDescription = "send",
                             tint = Color.Gray
                         )
                     },
                     placeholder = {
                         Text(
-                            text = "Email/Username...",
+                            text = "Code...",
                             style = TextStyle(color = Color.LightGray)
                         )
                     }
                 )
             }
 
-            // Password
+            // Password Field
             Box(
                 modifier = Modifier
                     .constrainAs(passwordField) {
-                        top.linkTo(emailField.bottom, margin = 16.dp)
+                        top.linkTo(codeField.bottom, margin = 16.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                    .fillMaxWidth()
-                    .shadow(0.dp, shape = RoundedCornerShape(8.dp), clip = true)
             ) {
                 OutlinedTextField(
-                    value = password.value,
-                    onValueChange = { password.value = it },
-                    shape = RoundedCornerShape(10.dp),
+                    value = newpass.value,
+                    onValueChange = { newpass.value = it },
+                    shape = RoundedCornerShape(8.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = Color.LightGray,
                         unfocusedBorderColor = Color.LightGray
@@ -188,7 +174,9 @@ fun LoginView(navigator: NavigationProvider?) {
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                    }),
                     visualTransformation = if (passwordVisibility.value) {
                         VisualTransformation.None
                     } else {
@@ -197,7 +185,11 @@ fun LoginView(navigator: NavigationProvider?) {
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(fontSize = 16.sp),
                     leadingIcon = {
-                        Icon(Icons.Outlined.Lock, contentDescription = "lock", tint = Color.Gray)
+                        Icon(
+                            Icons.Outlined.Lock,
+                            contentDescription = "lock",
+                            tint = Color.Gray
+                        )
                     },
                     trailingIcon = {
                         PasswordToggleIcon(
@@ -207,35 +199,19 @@ fun LoginView(navigator: NavigationProvider?) {
                     },
                     placeholder = {
                         Text(
-                            text = "Password...",
+                            text = "New PassWord...",
                             style = TextStyle(color = Color.LightGray)
                         )
                     }
                 )
             }
 
-            // Recover password
+            // Reset Button
             TextButton(
-                onClick = { navigator?.navigateToRecoverPass() },
-                modifier = Modifier.constrainAs(recoverPassword) {
-                    top.linkTo(passwordField.bottom)
-                    end.linkTo(passwordField.end)
-                }) {
-                Text(
-                    text = "Recover password",
-                    color = Color.Gray,
-                    style = TextStyle(fontSize = 14.sp)
-                )
-            }
-
-            // Login button
-            TextButton(
-                onClick = {
-                    navigator?.navigateToHome()
-                },
+                onClick = { navigator?.navigateToLogin() },
                 modifier = Modifier
-                    .constrainAs(loginBtn) {
-                        top.linkTo(recoverPassword.bottom, margin = 16.dp)
+                    .constrainAs(resetButton) {
+                        top.linkTo(passwordField.bottom, margin = 16.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
@@ -243,10 +219,10 @@ fun LoginView(navigator: NavigationProvider?) {
                         color = Color(0xFF0D5881),
                         shape = RoundedCornerShape(10.dp)
                     )
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             ) {
                 Text(
-                    text = "Login",
+                    text = "Reset Password",
                     style = TextStyle(
                         color = Color.White,
                         fontSize = 16.sp,
@@ -255,78 +231,12 @@ fun LoginView(navigator: NavigationProvider?) {
                     modifier = Modifier.padding()
                 )
             }
-
-            // Divider
-            Row(modifier = Modifier
-                .constrainAs(divider) {
-                    top.linkTo(loginBtn.bottom, margin = 16.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Divider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                )
-                Text(text = "OR",modifier = Modifier.padding(horizontal = 8.dp))
-                Divider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                )
-            }
-
-            // Fingerprint
-            IconButton(
-                onClick = {
-                    /* TODO : BOTTOM SHEET */
-                },
-                modifier = Modifier
-                    .constrainAs(fingerprintAuth) {
-                        top.linkTo(divider.bottom, margin = 16.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(horizontal = 16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(2.dp, Color.LightGray),
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.fingerprint),
-                    contentDescription = "fingerprint",
-                    modifier = Modifier.size(60.dp)
-                )
-            }
-
-            // Register
-            Box(
-                modifier = Modifier
-                    .constrainAs(registerBtn) {
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom, margin = 16.dp)
-                    }
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "Don't have an account ?", style = TextStyle(fontWeight = FontWeight.W400))
-                    TextButton(
-                        onClick = { navigator?.navigateToRegister() },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF0D5881))
-                    ) {
-                        Text(text = "Join us", style = TextStyle(fontWeight = FontWeight.W700))
-                    }
-                }
-            }
-
         }
     }
 }
 
-/*@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreenPreview() {
-    LoginView(navigator = null)
-}*/
+fun ResetPreview() {
+    ResetView(null)
+}

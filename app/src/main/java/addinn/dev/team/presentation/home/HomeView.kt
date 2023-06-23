@@ -21,11 +21,11 @@ import com.ramcosta.composedestinations.annotation.Destination
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination
+@Destination/*(start=true)*/
 @Composable
 fun HomeView(navigator: NavigationProvider) {
     val (currentBottomTab, setCurrentBottomTab) = rememberSaveable {
-        mutableStateOf(BottomBarItem.CHAT)
+        mutableStateOf(BottomBarItem.PROFILE)
     }
 
     Crossfade(currentBottomTab) { bottomTab ->
@@ -38,7 +38,7 @@ fun HomeView(navigator: NavigationProvider) {
                 BottomBarItem.POLLS -> PollsView(navigator = navigator)
                 BottomBarItem.CHAT -> ChatView(navigator = navigator, modifier = modifier)
                 BottomBarItem.EVENTS -> EventsView(navigator = navigator)
-                BottomBarItem.PROFILE -> ProfileView(navigator = navigator)
+                BottomBarItem.PROFILE -> ProfileView(/*navigator = navigator*/ modifier = modifier)
             }
         }
     }

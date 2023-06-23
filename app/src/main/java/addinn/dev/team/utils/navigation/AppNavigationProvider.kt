@@ -23,6 +23,12 @@ class AppNavigationProvider(
         navController.navigateTo(HomeViewDestination)
     }
 
+    override fun navigateToRecoverPass() {
+        navController.navigateTo(RecoverViewDestination)
+    }
+
+    override fun navigateToResetPass() {
+        navController.navigateTo(ResetViewDestination)
     override fun navigateToChat() {
         navController.navigateTo(MessagesViewDestination)
     }
