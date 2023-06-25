@@ -92,5 +92,5 @@ dependencies {
     implementation 'com.google.accompanist:accompanist-insets:0.23.1'
 
     // SWIPE BOX
-    implementation "me.saket.swipe:swipe:1.1.1"
+    implementation 'me.saket.swipe:swipe:1.1.1'
 }

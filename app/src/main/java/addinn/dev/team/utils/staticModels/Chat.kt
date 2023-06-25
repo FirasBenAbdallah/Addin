@@ -40,7 +40,7 @@ data class ConversationChat(
     var isOnline: Boolean = false
 )
 
-val fakeConversationData = listOf<ConversationChat>(
+val fakeConversationData = listOf(
     ConversationChat(
         username = "Random User",
         lastMessage = "Hello!",
@@ -99,7 +99,7 @@ val fakeConversationData = listOf<ConversationChat>(
     ),
 )
 
-val fakeMessagesData = listOf<ChatMessage>(
+val fakeMessagesData = listOf(
     ChatMessage(
         profileUUID = "1",
         message = "Hello!",

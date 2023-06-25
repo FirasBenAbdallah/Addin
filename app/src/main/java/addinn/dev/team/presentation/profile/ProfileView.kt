@@ -1,7 +1,6 @@
 package addinn.dev.team.presentation.profile
 
 import addinn.dev.team.R
-import addinn.dev.team.presentation.destinations.Destination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -45,7 +43,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileView(
     /*navigator: NavigationProvider*/
