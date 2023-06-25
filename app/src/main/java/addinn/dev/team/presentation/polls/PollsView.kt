@@ -71,7 +71,7 @@ fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier)
     Scaffold(modifier = modifier) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(top = 16.dp, end = 16.dp, start = 16.dp)
                 .verticalScroll(rememberScrollState())
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(30.dp)
