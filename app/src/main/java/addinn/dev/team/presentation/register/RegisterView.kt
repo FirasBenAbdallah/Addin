@@ -1,8 +1,12 @@
 package addinn.dev.team.presentation.register
 
+import addinn.dev.domain.entity.auth.RegisterRequest
+import addinn.dev.domain.entity.response.Response
 import addinn.dev.team.R
 import addinn.dev.team.utils.navigation.NavigationProvider
 import addinn.dev.team.utils.widgets.PasswordToggleIcon
+import addinn.dev.team.utils.widgets.loadingProgress.DialogBoxLoading
+import addinn.dev.team.viewModel.AuthViewModel
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,9 +31,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,13 +59,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import timber.log.Timber
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun RegisterView(navigator: NavigationProvider) {
+fun RegisterView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltViewModel()) {
     // UI
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
@@ -65,15 +75,42 @@ fun RegisterView(navigator: NavigationProvider) {
     val focusManager = LocalFocusManager.current
 
     // DROPDOWN
-    val listOfDepartments = listOf("Administration", "Web","Mobile","Data","DevOps")
+    val listOfDepartments = listOf("Administration", "Web", "Mobile", "Data", "DevOps")
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(listOfDepartments[0]) }
 
-    Scaffold {
-        ConstraintLayout(modifier = Modifier
-            .padding(horizontal = 12.dp, vertical = 12.dp)
-            .fillMaxSize()) {
-            val (logo, welcomeText,secondText, emailField, passwordField,departmentDropdown, registerBtn, /*divider,fingerprintAuth,*/ loginBtn) = createRefs()
+    // VIEW MODEL
+    val requestState = viewModel.registerState.collectAsState()
+    val loadingState = viewModel.loadingState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(requestState.value) {
+        when (requestState.value) {
+            is Response.Error -> {
+                val error = (requestState.value as Response.Error).error
+                snackbarHostState.showSnackbar(error)
+            }
+
+            is Response.Success -> {
+                navigator.navigateToHome()
+                Timber.d("Register Success Timber")
+            }
+
+            else -> {}
+        }
+    }
+
+    if (loadingState.value) {
+        DialogBoxLoading()
+    }
+
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        ConstraintLayout(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 12.dp)
+                .fillMaxSize()
+        ) {
+            val (logo, welcomeText, secondText, emailField, passwordField, departmentDropdown, registerBtn, /*divider,fingerprintAuth,*/ loginBtn) = createRefs()
 
             Image(
                 painter = painterResource(R.drawable.logo),
@@ -81,10 +118,10 @@ fun RegisterView(navigator: NavigationProvider) {
                 contentScale = ContentScale.Inside,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.Transparent,shape = RoundedCornerShape(0.dp))
+                    .background(color = Color.Transparent, shape = RoundedCornerShape(0.dp))
                     .padding(8.dp)
                     .constrainAs(logo) {
-                        top.linkTo(parent.top,margin = 30.dp)
+                        top.linkTo(parent.top, margin = 30.dp)
                         start.linkTo(parent.start, margin = 0.dp)
                         end.linkTo(parent.end, margin = 0.dp)
                         bottom.linkTo(welcomeText.top, margin = 18.dp)
@@ -218,20 +255,26 @@ fun RegisterView(navigator: NavigationProvider) {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                ){
+                ) {
                     OutlinedTextField(
                         value = selectedText,
                         onValueChange = {},
                         shape = RoundedCornerShape(10.dp),
-                        readOnly= true,
+                        readOnly = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color.LightGray,
                             unfocusedBorderColor = Color.LightGray,
                         ),
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
                         textStyle = TextStyle(fontSize = 16.sp),
                         leadingIcon = {
-                            Icon(Icons.Outlined.Home, contentDescription = "Home", tint = Color.Gray)
+                            Icon(
+                                Icons.Outlined.Home,
+                                contentDescription = "Home",
+                                tint = Color.Gray
+                            )
                         },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -257,7 +300,13 @@ fun RegisterView(navigator: NavigationProvider) {
 
             TextButton(
                 onClick = {
-                    navigator.navigateToHome()
+                    val registerRequest = RegisterRequest(
+                        email = username.value,
+                        password = password.value,
+                        department = selectedText
+                    )
+
+                    viewModel.register(registerRequest)
                 },
                 modifier = Modifier
                     .constrainAs(registerBtn) {
@@ -293,7 +342,10 @@ fun RegisterView(navigator: NavigationProvider) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Already have an account ?", style = TextStyle(fontWeight = FontWeight.W400))
+                    Text(
+                        text = "Already have an account ?",
+                        style = TextStyle(fontWeight = FontWeight.W400)
+                    )
                     TextButton(
                         onClick = { navigator.navigateBack() },
                         colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF0D5881))
@@ -303,6 +355,6 @@ fun RegisterView(navigator: NavigationProvider) {
                 }
             }
         }
-        
+
     }
 }

@@ -1,8 +1,12 @@
 package addinn.dev.team.presentation.login
 
+import addinn.dev.domain.entity.auth.LoginRequest
+import addinn.dev.domain.entity.response.Response
 import addinn.dev.team.R
 import addinn.dev.team.utils.navigation.NavigationProvider
 import addinn.dev.team.utils.widgets.PasswordToggleIcon
+import addinn.dev.team.utils.widgets.loadingProgress.DialogBoxLoading
+import addinn.dev.team.viewModel.AuthViewModel
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,10 +31,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -52,28 +60,57 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import timber.log.Timber
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination(start = true)
 @Composable
-fun LoginView(navigator: NavigationProvider?) {
+fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltViewModel()) {
 
     // UI
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
+    val showError = remember { mutableStateOf(false) }
+    val error = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    Scaffold {
+    // View Model
+    val requestState = viewModel.loginState.collectAsState()
+    val loadingState = viewModel.loadingState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(requestState.value) {
+        when (requestState.value) {
+            is Response.Error -> {
+                val error = (requestState.value as Response.Error).error
+                snackbarHostState.showSnackbar(error)
+            }
+
+            is Response.Success -> {
+                navigator.navigateToHome()
+                Timber.d("Login Success Timber")
+            }
+
+            else -> {}
+        }
+    }
+
+    if (loadingState.value) {
+        DialogBoxLoading()
+    }
+
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
         ConstraintLayout(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 12.dp)
                 .fillMaxSize()
         ) {
-            val (logo, welcomeText,secondText, emailField, passwordField, recoverPassword, loginBtn, divider,fingerprintAuth, registerBtn) = createRefs()
-
+            val (logo, welcomeText, secondText, emailField, passwordField, recoverPassword, loginBtn, divider, fingerprintAuth, registerBtn, errorEmail, errorPassWord) = createRefs()
+            val passPlaceholder = remember { mutableStateOf("Password") }
             // Logo
             Image(
                 painter = painterResource(R.drawable.logo),
@@ -138,7 +175,7 @@ fun LoginView(navigator: NavigationProvider?) {
                     shape = RoundedCornerShape(8.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = Color.LightGray
+                        unfocusedBorderColor = if (showError.value && username.value.isEmpty()) Color.Red else Color.LightGray
                     ),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
@@ -157,10 +194,25 @@ fun LoginView(navigator: NavigationProvider?) {
                         )
                     },
                     placeholder = {
-                        Text(
+                        /*Text(
                             text = "Email/Username...",
                             style = TextStyle(color = Color.LightGray)
-                        )
+                        )*/
+                        if (showError.value) {
+                            if (username.value.isEmpty()) {
+                                Text(
+                                    text = "Please enter your email...",
+                                    style = TextStyle(color = Color.Red)
+                                )
+                            } else {
+                                error.value = true
+                            }
+                        } else {
+                            Text(
+                                text = "Email/Username...",
+                                style = TextStyle(color = Color.LightGray)
+                            )
+                        }
                     }
                 )
             }
@@ -182,7 +234,7 @@ fun LoginView(navigator: NavigationProvider?) {
                     shape = RoundedCornerShape(10.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = Color.LightGray
+                        unfocusedBorderColor = if (showError.value && password.value.isEmpty()) Color.Red else Color.LightGray
                     ),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
@@ -206,17 +258,28 @@ fun LoginView(navigator: NavigationProvider?) {
                         )
                     },
                     placeholder = {
-                        Text(
-                            text = "Password...",
-                            style = TextStyle(color = Color.LightGray)
-                        )
+                        if (showError.value) {
+                            if (password.value.isEmpty()) {
+                                Text(
+                                    text = "Please enter your password...",
+                                    style = TextStyle(color = Color.Red)
+                                )
+                            } else {
+                                error.value = true
+                            }
+                        } else {
+                            Text(
+                                text = "Password...",
+                                style = TextStyle(color = Color.LightGray)
+                            )
+                        }
                     }
                 )
             }
 
             // Recover password
             TextButton(
-                onClick = { navigator?.navigateToRecoverPass() },
+                onClick = { navigator.navigateToRecoverPass() },
                 modifier = Modifier.constrainAs(recoverPassword) {
                     top.linkTo(passwordField.bottom)
                     end.linkTo(passwordField.end)
@@ -228,10 +291,49 @@ fun LoginView(navigator: NavigationProvider?) {
                 )
             }
 
+            // Error message
+            /*if (showError.value) {
+                if (username.value.isEmpty()) {
+                    Text(
+                        text = "Veuillez entrer votre email",
+                        color = Color.Red,
+                        modifier = Modifier
+                            .constrainAs(errorEmail) {
+                                top.linkTo(emailField.bottom, margin = 8.dp)
+                                start.linkTo(emailField.start)
+                            }
+                    )
+                }
+                if (password.value.isEmpty()) {
+                    passPlaceholder.value = "Please enter your password..."
+                    *//*Text(
+                        text = "Veuillez entrer votre mot de passe",
+                        color = Color.Red,
+                        modifier = Modifier
+                            .constrainAs(errorPassWord) {
+                                top.linkTo(passwordField.bottom, margin = 8.dp)
+                                start.linkTo(passwordField.start)
+                            }
+                    )*//*
+                } else {
+                    passPlaceholder.value = "Password..."
+                }
+            } else {
+                showError.value = false
+            }*/
+
             // Login button
             TextButton(
                 onClick = {
-                    navigator?.navigateToHome()
+//                    navigator.navigateToHome()
+                    showError.value = true
+                    if (error.value) {
+                        val loginRequest = LoginRequest(
+                            email = username.value,
+                            password = password.value
+                        )
+                        viewModel.login(loginRequest)
+                    }
                 },
                 modifier = Modifier
                     .constrainAs(loginBtn) {
@@ -269,7 +371,7 @@ fun LoginView(navigator: NavigationProvider?) {
                         .weight(1f)
                         .height(1.dp)
                 )
-                Text(text = "OR",modifier = Modifier.padding(horizontal = 8.dp))
+                Text(text = "OR", modifier = Modifier.padding(horizontal = 8.dp))
                 Divider(
                     modifier = Modifier
                         .weight(1f)
@@ -311,9 +413,12 @@ fun LoginView(navigator: NavigationProvider?) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Don't have an account ?", style = TextStyle(fontWeight = FontWeight.W400))
+                    Text(
+                        text = "Don't have an account ?",
+                        style = TextStyle(fontWeight = FontWeight.W400)
+                    )
                     TextButton(
-                        onClick = { navigator?.navigateToRegister() },
+                        onClick = { navigator.navigateToRegister() },
                         colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF0D5881))
                     ) {
                         Text(text = "Join us", style = TextStyle(fontWeight = FontWeight.W700))

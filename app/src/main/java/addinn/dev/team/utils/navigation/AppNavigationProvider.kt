@@ -3,12 +3,17 @@ package addinn.dev.team.utils.navigation
 import addinn.dev.team.presentation.destinations.*
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.navigation.navigateTo
+import com.ramcosta.composedestinations.navigation.popUpTo
 
 class AppNavigationProvider(
     private val navController: NavController
 ):NavigationProvider {
     override fun navigateToLogin() {
-        navController.navigateTo(LoginViewDestination)
+        navController.navigateTo(direction = LoginViewDestination, navOptionsBuilder = {
+            popUpTo(HomeViewDestination) {
+                inclusive = true
+            }
+        })
     }
 
     override fun navigateToRegister() {
@@ -21,6 +26,11 @@ class AppNavigationProvider(
 
     override fun navigateToHome() {
         navController.navigateTo(HomeViewDestination)
+        navController.navigateTo(direction = HomeViewDestination, navOptionsBuilder = {
+            popUpTo(LoginViewDestination) {
+                inclusive = true
+            }
+        })
     }
 
     override fun navigateToRecoverPass() {

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Team" parent="android:Theme.Material.Light.NoActionBar.Fullscreen" />
+    <style name="Theme.Team" parent="android:Theme.Material.Light.NoActionBar.Fullscreen" >
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/addinn_logo</item>
+    </style>
 </resources>

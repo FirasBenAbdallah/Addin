@@ -1,6 +1,11 @@
 package addinn.dev.team.presentation.profile
 
+import addinn.dev.domain.entity.response.Response
 import addinn.dev.team.R
+import addinn.dev.team.utils.navigation.NavigationProvider
+import addinn.dev.team.utils.widgets.loadingProgress.DialogBoxLoading
+import addinn.dev.team.viewModel.AuthViewModel
+import addinn.dev.team.viewModel.SharedViewModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
@@ -27,6 +32,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,19 +46,51 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ProfileView(
-    /*navigator: NavigationProvider*/
-    modifier: Modifier = Modifier
+    navigator: NavigationProvider,
+    modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val (names, setNames) = remember { mutableStateOf("Firas") }
-    val (emails, setEmails) = remember { mutableStateOf("firas.benabdallah@esprit.tn") }
+    val (emails, setEmails) = remember { mutableStateOf("") }
     val show = remember { mutableStateOf(false) }
+
+    // VIEW MODEL
+    val requestState = authViewModel.logoutState.collectAsState()
+    val loadingState = authViewModel.loadingState.collectAsState()
+
+    // USER
+    val userData by sharedViewModel.userData
+
+
+    LaunchedEffect(requestState.value) {
+        when (requestState.value) {
+            is Response.Error -> {
+
+            }
+
+            is Response.Success -> {
+                navigator.navigateToLogin()
+                Timber.d("Logout Success Timber")
+            }
+
+            else -> {}
+        }
+    }
+
+    if (loadingState.value) {
+        DialogBoxLoading()
+    }
+
     Scaffold(modifier = modifier) {
         Column(
             modifier = Modifier
@@ -75,7 +115,7 @@ fun ProfileView(
                 // Profile Name and Email
                 Column(modifier = Modifier.padding(start = 16.dp)) {
                     Text(text = names, style = TextStyle(fontSize = 20.sp))
-                    Text(text = emails, style = TextStyle(fontSize = 16.sp))
+                    Text(text = userData?.email!!, style = TextStyle(fontSize = 16.sp))
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -441,19 +481,22 @@ fun ProfileView(
                         )
                         Column(modifier = Modifier.padding(start = 16.dp)) {
                             Text(
-                                text = "Wishlist",
+                                text = "Logout",
                                 style = TextStyle(fontSize = 16.sp),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                             Text(
-                                text = "Items you saved",
+                                text = "Logout from your account",
                                 style = TextStyle(fontSize = 14.sp, color = Color.Gray),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(
-                            onClick = {},
+                            onClick = {
+                                // TODO: DO NOT REMOVE THIS WIDGET
+                                authViewModel.logout()
+                            },
                         ) {
                             Icon(
                                 Icons.Outlined.ArrowForward,

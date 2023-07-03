@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "38397741594",
+    "project_id": "team-addinn",
+    "storage_bucket": "team-addinn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38397741594:android:f665c2ab719383a3885fa3",
+        "android_client_info": {
+          "package_name": "addinn.dev.team"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "38397741594-23pem8u8ef4vv3ht2qa4dvpkk6jkqd6l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLW9vHv2trxW3qECOjnfPpdf9j6rSXnKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "38397741594-23pem8u8ef4vv3ht2qa4dvpkk6jkqd6l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
