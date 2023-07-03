@@ -75,7 +75,6 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
     val password = remember { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
     val showError = remember { mutableStateOf(false) }
-    val error = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
     // View Model
@@ -109,8 +108,7 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                 .padding(horizontal = 12.dp, vertical = 12.dp)
                 .fillMaxSize()
         ) {
-            val (logo, welcomeText, secondText, emailField, passwordField, recoverPassword, loginBtn, divider, fingerprintAuth, registerBtn, errorEmail, errorPassWord) = createRefs()
-            val passPlaceholder = remember { mutableStateOf("Password") }
+            val (logo, welcomeText, secondText, emailField, passwordField, recoverPassword, loginBtn, divider, fingerprintAuth, registerBtn) = createRefs()
             // Logo
             Image(
                 painter = painterResource(R.drawable.logo),
@@ -194,19 +192,11 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                         )
                     },
                     placeholder = {
-                        /*Text(
-                            text = "Email/Username...",
-                            style = TextStyle(color = Color.LightGray)
-                        )*/
-                        if (showError.value) {
-                            if (username.value.isEmpty()) {
+                        if (showError.value && username.value.isEmpty()) {
                                 Text(
                                     text = "Please enter your email...",
                                     style = TextStyle(color = Color.Red)
                                 )
-                            } else {
-                                error.value = true
-                            }
                         } else {
                             Text(
                                 text = "Email/Username...",
@@ -258,15 +248,11 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                         )
                     },
                     placeholder = {
-                        if (showError.value) {
-                            if (password.value.isEmpty()) {
+                        if (showError.value && password.value.isEmpty()) {
                                 Text(
                                     text = "Please enter your password...",
                                     style = TextStyle(color = Color.Red)
                                 )
-                            } else {
-                                error.value = true
-                            }
                         } else {
                             Text(
                                 text = "Password...",
@@ -291,43 +277,11 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                 )
             }
 
-            // Error message
-            /*if (showError.value) {
-                if (username.value.isEmpty()) {
-                    Text(
-                        text = "Veuillez entrer votre email",
-                        color = Color.Red,
-                        modifier = Modifier
-                            .constrainAs(errorEmail) {
-                                top.linkTo(emailField.bottom, margin = 8.dp)
-                                start.linkTo(emailField.start)
-                            }
-                    )
-                }
-                if (password.value.isEmpty()) {
-                    passPlaceholder.value = "Please enter your password..."
-                    *//*Text(
-                        text = "Veuillez entrer votre mot de passe",
-                        color = Color.Red,
-                        modifier = Modifier
-                            .constrainAs(errorPassWord) {
-                                top.linkTo(passwordField.bottom, margin = 8.dp)
-                                start.linkTo(passwordField.start)
-                            }
-                    )*//*
-                } else {
-                    passPlaceholder.value = "Password..."
-                }
-            } else {
-                showError.value = false
-            }*/
-
             // Login button
             TextButton(
                 onClick = {
-//                    navigator.navigateToHome()
                     showError.value = true
-                    if (error.value) {
+                    if (password.value.isNotEmpty() && username.value.isNotEmpty()) {
                         val loginRequest = LoginRequest(
                             email = username.value,
                             password = password.value
