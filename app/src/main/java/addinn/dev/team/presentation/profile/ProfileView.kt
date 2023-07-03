@@ -61,8 +61,9 @@ fun ProfileView(
     sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val (names, setNames) = remember { mutableStateOf("Firas") }
-    val (emails, setEmails) = remember { mutableStateOf("") }
+    val (_, setEmails) = remember { mutableStateOf("") }
     val show = remember { mutableStateOf(false) }
+    val help = remember { mutableStateOf(false) }
 
     // VIEW MODEL
     val requestState = authViewModel.logoutState.collectAsState()
@@ -135,10 +136,10 @@ fun ProfileView(
                         .fillMaxWidth()
                         .fillMaxHeight()
                 ) {
-                    // Account Row
+
+                    // Account
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             Icons.Outlined.Person,
@@ -169,10 +170,9 @@ fun ProfileView(
                         }
                     }
 
-                    // Orders Row
+                    // Orders
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             Icons.Outlined.ShoppingCart,
@@ -203,15 +203,13 @@ fun ProfileView(
                         }
                     }
 
-                    // Addresses Row
+                    // Addresses
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.outline_navigation_24),
                             contentDescription = "Addresses Icon",
-//                modifier = Modifier.size(24.dp)
                         )
                         Column(modifier = Modifier.padding(start = 16.dp)) {
                             Text(
@@ -237,15 +235,13 @@ fun ProfileView(
                         }
                     }
 
-                    // Saved Cards Row
+                    // Saved Cards
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.outline_payments_24),
                             contentDescription = "Saved Cards Icon",
-//                modifier = Modifier.size(24.dp)
                         )
                         Column(modifier = Modifier.padding(start = 16.dp)) {
                             Text(
@@ -271,10 +267,9 @@ fun ProfileView(
                         }
                     }
 
-                    // Settings Row
+                    // Settings
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.outline_settings_24),
@@ -305,44 +300,9 @@ fun ProfileView(
                         }
                     }
 
-                    // Help Row
+                    // Offers and Coupons
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.outline_help_24),
-                            contentDescription = "Help Icon",
-//                modifier = Modifier.size(24.dp)
-                        )
-                        Column(modifier = Modifier.padding(start = 16.dp)) {
-                            Text(
-                                text = "Help Center",
-                                style = TextStyle(fontSize = 16.sp),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                            Text(
-                                text = "FAQs and customer support",
-                                style = TextStyle(fontSize = 14.sp, color = Color.Gray),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        IconButton(
-                            onClick = { /*showToast(context, "Manage Your Account")*/ },
-                        ) {
-                            Icon(
-                                Icons.Outlined.ArrowForward,
-                                contentDescription = "Account Button",
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-
-                    // Offers and Coupons Row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.outline_local_offer_24),
@@ -373,31 +333,32 @@ fun ProfileView(
                         }
                     }
 
-                    // Wishlist Row
+                    // Help Center
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.outline_favorite_border_24),
-                            contentDescription = "Wishlist Icon",
-//                modifier = Modifier.size(24.dp)
+                            painter = painterResource(R.drawable.outline_help_24),
+                            contentDescription = "Help Icon",
                         )
                         Column(modifier = Modifier.padding(start = 16.dp)) {
                             Text(
-                                text = "Wishlist",
+                                text = "Help Center",
                                 style = TextStyle(fontSize = 16.sp),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                             Text(
-                                text = "Items you saved",
+                                text = "FAQs and customer support",
                                 style = TextStyle(fontSize = 14.sp, color = Color.Gray),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(
-                            onClick = { /*showToast(context, "Manage Your Account")*/ },
+                            onClick = {
+                                showToast(context, "Help Center")
+                                help.value = true
+                            },
                         ) {
                             Icon(
                                 Icons.Outlined.ArrowForward,
@@ -405,78 +366,15 @@ fun ProfileView(
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                    }// Wishlist Row
+                    }
+
+                    // Logout
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.outline_favorite_border_24),
-                            contentDescription = "Wishlist Icon",
-//                modifier = Modifier.size(24.dp)
-                        )
-                        Column(modifier = Modifier.padding(start = 16.dp)) {
-                            Text(
-                                text = "Wishlist",
-                                style = TextStyle(fontSize = 16.sp),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                            Text(
-                                text = "Items you saved",
-                                style = TextStyle(fontSize = 14.sp, color = Color.Gray),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        IconButton(
-                            onClick = { /*showToast(context, "Manage Your Account")*/ },
-                        ) {
-                            Icon(
-                                Icons.Outlined.ArrowForward,
-                                contentDescription = "Account Button",
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }// Wishlist Row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.outline_favorite_border_24),
-                            contentDescription = "Wishlist Icon",
-//                modifier = Modifier.size(24.dp)
-                        )
-                        Column(modifier = Modifier.padding(start = 16.dp)) {
-                            Text(
-                                text = "Wishlist",
-                                style = TextStyle(fontSize = 16.sp),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                            Text(
-                                text = "Items you saved",
-                                style = TextStyle(fontSize = 14.sp, color = Color.Gray),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        IconButton(
-                            onClick = { /*showToast(context, "Manage Your Account")*/ },
-                        ) {
-                            Icon(
-                                Icons.Outlined.ArrowForward,
-                                contentDescription = "Account Button",
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }// Wishlist Row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        //modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.outline_favorite_border_24),
-                            contentDescription = "Wishlist Icon",
+                            painter = painterResource(R.drawable.baseline_logout_24),
+                            contentDescription = "Logout Icon",
 //                modifier = Modifier.size(24.dp)
                         )
                         Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -505,9 +403,47 @@ fun ProfileView(
                             )
                         }
                     }
+
+                    /*
+                    // Wishlist Row
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        //modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_favorite_border_24),
+                            contentDescription = "Wishlist Icon",
+//                modifier = Modifier.size(24.dp)
+                        )
+                        Column(modifier = Modifier.padding(start = 16.dp)) {
+                            Text(
+                                text = "Wishlist",
+                                style = TextStyle(fontSize = 16.sp),
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                            Text(
+                                text = "Items you saved",
+                                style = TextStyle(fontSize = 14.sp, color = Color.Gray),
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        IconButton(
+                            onClick = { showToast(context, "Manage Your Account") },
+                        ) {
+                            Icon(
+                                Icons.Outlined.ArrowForward,
+                                contentDescription = "Account Button",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    */
                 }
             }
         }
+
+        // Edit Profile
         if (show.value) {
             EditProfile(onSaveProfile = { updatedNames, updatedEmails ->
                 setNames(updatedNames)
@@ -515,16 +451,17 @@ fun ProfileView(
                 show.value = false
             })
         }
+        if (help.value) {
+            HelpCenter()
+        }
     }
 }
-
 
 fun showToast(context: Context, message: String) {
     CoroutineScope(Dispatchers.Main).launch {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }
-
 
 /*@Preview(showBackground = true, showSystemUi = true)
 @Composable
