@@ -452,7 +452,7 @@ fun ProfileView(
             })
         }
         if (help.value) {
-            HelpCenter()
+            navigator.navigateToHelpCenter()
         }
     }
 }

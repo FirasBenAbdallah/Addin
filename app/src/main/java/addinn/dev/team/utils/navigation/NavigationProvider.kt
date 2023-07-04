@@ -9,4 +9,5 @@ interface NavigationProvider {
     fun navigateToResetPass()
     fun navigateToChat()
     fun navigateToMembers()
+    fun navigateToHelpCenter()
 }

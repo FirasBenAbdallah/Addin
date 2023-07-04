@@ -7,7 +7,7 @@ import com.ramcosta.composedestinations.navigation.popUpTo
 
 class AppNavigationProvider(
     private val navController: NavController
-):NavigationProvider {
+) : NavigationProvider {
     override fun navigateToLogin() {
         navController.navigateTo(direction = LoginViewDestination, navOptionsBuilder = {
             popUpTo(HomeViewDestination) {
@@ -40,11 +40,16 @@ class AppNavigationProvider(
     override fun navigateToResetPass() {
         navController.navigateTo(ResetViewDestination)
     }
+
     override fun navigateToChat() {
         navController.navigateTo(MessagesViewDestination)
     }
 
     override fun navigateToMembers() {
         navController.navigateTo(MembersViewDestination)
+    }
+
+    override fun navigateToHelpCenter() {
+        navController.navigateTo(HelpCenterDestination)
     }
 }
