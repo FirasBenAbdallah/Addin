@@ -92,7 +92,7 @@ fun RegisterView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltV
             }
 
             is Response.Success -> {
-                navigator.navigateToHome()
+                navigator.navigateToLogin()
                 Timber.d("Register Success Timber")
             }
 

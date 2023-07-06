@@ -5,7 +5,7 @@ import addinn.dev.domain.entity.auth.LoginResponse
 import addinn.dev.domain.entity.auth.RegisterRequest
 import addinn.dev.domain.entity.auth.RegisterResponse
 import addinn.dev.domain.entity.response.Response
-import addinn.dev.domain.entity.user.User
+import addinn.dev.domain.entity.data.user.User
 import addinn.dev.domain.usecase.auth.LoginUseCase
 import addinn.dev.domain.usecase.auth.LogoutUseCase
 import addinn.dev.domain.usecase.auth.RegisterUseCase

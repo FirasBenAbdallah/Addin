@@ -5,7 +5,9 @@ import addinn.dev.domain.entity.auth.LoginResponse
 import addinn.dev.domain.entity.auth.RegisterRequest
 import addinn.dev.domain.entity.auth.RegisterResponse
 import addinn.dev.domain.entity.response.Response
-import addinn.dev.domain.entity.user.User
+import addinn.dev.domain.entity.data.user.User
+import addinn.dev.domain.entity.poll.PollRequest
+import addinn.dev.domain.entity.poll.PollResponse
 import addinn.dev.domain.repository.auth.AuthRepo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,7 +17,7 @@ import kotlinx.coroutines.flow.callbackFlow
 
 class AuthRepoImpl(
     private val database: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
 ) : AuthRepo {
     override suspend fun register(registerRequest: RegisterRequest): Flow<Response<RegisterResponse>> =
         callbackFlow {
@@ -43,6 +45,8 @@ class AuthRepoImpl(
             }
 
         }
+
+
 
     override suspend fun login(loginRequest: LoginRequest): Flow<Response<LoginResponse>> = callbackFlow {
         trySend(Response.Loading)

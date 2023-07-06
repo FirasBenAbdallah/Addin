@@ -75,9 +75,7 @@ fun ProfileView(
 
     LaunchedEffect(requestState.value) {
         when (requestState.value) {
-            is Response.Error -> {
-
-            }
+            is Response.Error -> {}
 
             is Response.Success -> {
                 navigator.navigateToLogin()
