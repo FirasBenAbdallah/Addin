@@ -8,5 +8,9 @@ data class RegisterResponse(
     var id: String?,
     var email: String?,
     var password: String?,
-    var department: String?
+    var isOnline: Boolean?,
+    var lastSeen: Long?,
+    var department: String?,
+    var username: String?,
+    var avatarUrl: String?
 ) : Parcelable

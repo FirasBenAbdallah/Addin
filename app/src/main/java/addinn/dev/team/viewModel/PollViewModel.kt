@@ -1,9 +1,5 @@
 package addinn.dev.team.viewModel
 
-import addinn.dev.domain.entity.auth.RegisterRequest
-import addinn.dev.domain.entity.auth.RegisterResponse
-import addinn.dev.domain.entity.data.poll.Poll
-import addinn.dev.domain.entity.data.user.User
 import addinn.dev.domain.entity.poll.PollRequest
 import addinn.dev.domain.entity.poll.PollResponse
 import addinn.dev.domain.entity.response.Response
@@ -45,14 +41,6 @@ class PollViewModel @Inject constructor(
 
                 is Response.Success -> {
                     _pollState.value = Response.Success(it.data)
-                    val poll = Poll(
-                        id = it.data.id,
-                        question = it.data.question,
-                        choice1 = it.data.choice1,
-                        choice2 = it.data.choice2,
-                        choice3 = it.data.choice3,
-                    )
-                    sharedViewModel.setPollData(data = poll)
                     _loadingState.value = false
                 }
             }

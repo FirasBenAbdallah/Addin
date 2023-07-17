@@ -10,14 +10,11 @@ import addinn.dev.team.viewModel.AuthViewModel
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,17 +22,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
@@ -62,10 +55,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import timber.log.Timber
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Destination(start = true)
 @Composable
 fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltViewModel()) {
@@ -74,24 +65,30 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
-    val showError = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    // View Model
+    // VIEW MODEL
     val requestState = viewModel.loginState.collectAsState()
     val loadingState = viewModel.loadingState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val error = remember { mutableStateOf("") }
+
+    LaunchedEffect(error.value){
+        if (error.value.isNotEmpty()){
+            snackbarHostState.showSnackbar(error.value)
+        }
+    }
+
     LaunchedEffect(requestState.value) {
         when (requestState.value) {
             is Response.Error -> {
-                val error = (requestState.value as Response.Error).error
-                snackbarHostState.showSnackbar(error)
+                error.value = (requestState.value as Response.Error).error
+                snackbarHostState.showSnackbar(error.value)
             }
 
             is Response.Success -> {
                 navigator.navigateToHome()
-                Timber.d("Login Success Timber")
             }
 
             else -> {}
@@ -108,7 +105,8 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                 .padding(horizontal = 12.dp, vertical = 12.dp)
                 .fillMaxSize()
         ) {
-            val (logo, welcomeText, secondText, emailField, passwordField, recoverPassword, loginBtn, divider, fingerprintAuth, registerBtn) = createRefs()
+            val (logo, welcomeText, secondText, emailField, passwordField, recoverPassword, loginBtn, registerBtn) = createRefs()
+
             // Logo
             Image(
                 painter = painterResource(R.drawable.logo),
@@ -171,9 +169,9 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                     value = username.value,
                     onValueChange = { username.value = it },
                     shape = RoundedCornerShape(8.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = if (showError.value && username.value.isEmpty()) Color.Red else Color.LightGray
+                        unfocusedBorderColor = Color.LightGray,
                     ),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
@@ -192,17 +190,10 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                         )
                     },
                     placeholder = {
-                        if (showError.value && username.value.isEmpty()) {
-                                Text(
-                                    text = "Please enter your email...",
-                                    style = TextStyle(color = Color.Red)
-                                )
-                        } else {
-                            Text(
-                                text = "Email/Username...",
-                                style = TextStyle(color = Color.LightGray)
-                            )
-                        }
+                        Text(
+                            text = "Email/Username...",
+                            style = TextStyle(color = Color.LightGray)
+                        )
                     }
                 )
             }
@@ -222,9 +213,9 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                     value = password.value,
                     onValueChange = { password.value = it },
                     shape = RoundedCornerShape(10.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = if (showError.value && password.value.isEmpty()) Color.Red else Color.LightGray
+                        unfocusedBorderColor = Color.LightGray,
                     ),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
@@ -248,17 +239,10 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                         )
                     },
                     placeholder = {
-                        if (showError.value && password.value.isEmpty()) {
-                                Text(
-                                    text = "Please enter your password...",
-                                    style = TextStyle(color = Color.Red)
-                                )
-                        } else {
-                            Text(
-                                text = "Password...",
-                                style = TextStyle(color = Color.LightGray)
-                            )
-                        }
+                        Text(
+                            text = "Password...",
+                            style = TextStyle(color = Color.LightGray)
+                        )
                     }
                 )
             }
@@ -280,12 +264,16 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
             // Login button
             TextButton(
                 onClick = {
-                    showError.value = true
-                    if (password.value.isNotEmpty() && username.value.isNotEmpty()) {
+                    if (username.value.isEmpty()) {
+                        error.value = "Please enter your email or username"
+                    } else if (password.value.isEmpty()) {
+                        error.value = "Please enter your password"
+                    } else {
                         val loginRequest = LoginRequest(
                             email = username.value,
                             password = password.value
                         )
+
                         viewModel.login(loginRequest)
                     }
                 },
@@ -312,56 +300,13 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
                 )
             }
 
-            // Divider
-            Row(modifier = Modifier
-                .constrainAs(divider) {
-                    top.linkTo(loginBtn.bottom, margin = 16.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Divider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                )
-                Text(text = "OR", modifier = Modifier.padding(horizontal = 8.dp))
-                Divider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                )
-            }
-
-            // Fingerprint
-            IconButton(
-                onClick = {
-                    /* TODO : BOTTOM SHEET */
-                },
-                modifier = Modifier
-                    .constrainAs(fingerprintAuth) {
-                        top.linkTo(divider.bottom, margin = 16.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(horizontal = 16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(2.dp, Color.LightGray),
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.fingerprint),
-                    contentDescription = "fingerprint",
-                    modifier = Modifier.size(60.dp)
-                )
-            }
-
             // Register
             Box(
                 modifier = Modifier
                     .constrainAs(registerBtn) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom, margin = 16.dp)
+                        top.linkTo(loginBtn.bottom, margin = 16.dp)
                     }
             ) {
                 Row(
@@ -383,9 +328,3 @@ fun LoginView(navigator: NavigationProvider, viewModel: AuthViewModel = hiltView
         }
     }
 }
-
-/*@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginView(navigator = null)
-}*/

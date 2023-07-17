@@ -1,7 +1,12 @@
 package addinn.dev.team.presentation.channels
 
+import addinn.dev.domain.entity.response.Response
+import addinn.dev.domain.entity.user.User
 import addinn.dev.team.R
 import addinn.dev.team.utils.navigation.NavigationProvider
+import addinn.dev.team.utils.widgets.loadingProgress.DialogBoxLoading
+import addinn.dev.team.viewModel.SharedViewModel
+import addinn.dev.team.viewModel.chat.GetUsersViewModel
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +26,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -30,11 +39,56 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChannelsView(navigator: NavigationProvider, modifier: Modifier = Modifier) {
+fun ChannelsView(
+    navigator: NavigationProvider,
+    modifier: Modifier = Modifier,
+    getUsersViewModel: GetUsersViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel()
+) {
+    // CURRENT USER
+    val currentUser = sharedViewModel.getUser()
+
+    // VIEW MODEL
+    val requestState = getUsersViewModel.usersState.collectAsState()
+    val loadingState = getUsersViewModel.loadingState.collectAsState()
+
+    val users = remember { mutableStateOf(emptyList<User>()) }
+
+    val channelImage = when (currentUser.department) {
+        "Mobile" -> R.drawable.mobile_pic
+        "Web" -> R.drawable.web
+        "Administration" -> R.drawable.admin
+        "Data" -> R.drawable.data
+        "DevOps" -> R.drawable.cloud
+        else -> R.drawable.mobile_pic
+    }
+
+    LaunchedEffect(Unit) {
+        getUsersViewModel.getUsersByDep(currentUser.id!!, currentUser.department!!)
+    }
+
+    LaunchedEffect(requestState.value) {
+        when (requestState.value) {
+            is Response.Error -> {
+            }
+
+            is Response.Success -> {
+                val data = (requestState.value as Response.Success).data
+                users.value = data
+            }
+
+            else -> {}
+        }
+    }
+
+    if (loadingState.value) {
+        DialogBoxLoading()
+    }
 
     val data = listOf(
         ChannelItem(
@@ -44,7 +98,7 @@ fun ChannelsView(navigator: NavigationProvider, modifier: Modifier = Modifier) {
                 Color(0xffBE93C5),
                 Color(0xff7BC6CC),
             ),
-            onClick = {}),
+            onClick = { navigator.navigateToGroupChat(users.value.count()) }),
         ChannelItem(
             name = "Shared Files",
             image = R.drawable.files_ill,
@@ -73,7 +127,7 @@ fun ChannelsView(navigator: NavigationProvider, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Mobile dev Channel", style = TextStyle(
+                text = "${currentUser.department!!} Channel", style = TextStyle(
                     fontWeight = FontWeight.W600,
                     fontSize = 28.sp,
                     letterSpacing = 1.25.sp
@@ -86,13 +140,13 @@ fun ChannelsView(navigator: NavigationProvider, modifier: Modifier = Modifier) {
                     .background(color = Color.LightGray, shape = CircleShape)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.mobile_pic),
+                    painter = painterResource(id = channelImage),
                     contentDescription = "Mobile dev Channel",
                 )
             }
 
             Text(
-                text = "12 members", style = TextStyle(
+                text = users.value.count().toString(), style = TextStyle(
                     fontWeight = FontWeight.Light,
                     fontSize = 16.sp,
                 )

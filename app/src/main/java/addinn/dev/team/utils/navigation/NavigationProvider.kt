@@ -7,7 +7,9 @@ interface NavigationProvider {
     fun navigateToHome()
     fun navigateToRecoverPass()
     fun navigateToResetPass()
-    fun navigateToChat()
+    fun navigateToChat(senderId:String, receiverId:String)
     fun navigateToMembers()
     fun navigateToHelpCenter()
+    fun navigateToGroupChat(usersCount:Int)
+    fun navigateToNewMessage()
 }

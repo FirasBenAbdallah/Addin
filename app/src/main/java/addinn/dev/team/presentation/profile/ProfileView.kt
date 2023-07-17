@@ -34,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -50,7 +49,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -69,9 +67,8 @@ fun ProfileView(
     val requestState = authViewModel.logoutState.collectAsState()
     val loadingState = authViewModel.loadingState.collectAsState()
 
-    // USER
-    val userData by sharedViewModel.userData
-
+    // CURRENT USER
+    val currentUser = sharedViewModel.getUser()
 
     LaunchedEffect(requestState.value) {
         when (requestState.value) {
@@ -79,7 +76,6 @@ fun ProfileView(
 
             is Response.Success -> {
                 navigator.navigateToLogin()
-                Timber.d("Logout Success Timber")
             }
 
             else -> {}
@@ -114,7 +110,7 @@ fun ProfileView(
                 // Profile Name and Email
                 Column(modifier = Modifier.padding(start = 16.dp)) {
                     Text(text = names, style = TextStyle(fontSize = 20.sp))
-                    Text(text = userData?.email!!, style = TextStyle(fontSize = 16.sp))
+                    Text(text = currentUser.email!!, style = TextStyle(fontSize = 16.sp))
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
