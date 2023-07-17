@@ -1,5 +1,7 @@
 package addinn.dev.team.presentation.polls
 
+import addinn.dev.domain.entity.poll.PollRequest
+import addinn.dev.team.viewModel.PollViewModel
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,12 +48,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType", "ModifierParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier) {
+fun PollsView(/*navigator: NavigationProvider?,*/viewModel: PollViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
 
     // Drop down menu
     val listOfChoice = listOf("2", "3", "4", "5", "6", "7", "8", "9", "10")
@@ -241,6 +244,14 @@ fun PollsView(/*navigator: NavigationProvider?,*/ modifier: Modifier = Modifier)
                             // View Polls button
                             Button(
                                 onClick = {
+                                    val pollRequest = PollRequest(
+                                        question = poll.question.value,
+                                        choice1 = poll.choices[0].value,
+                                        choice2 = poll.choices[1].value,
+                                        choice3 = poll.choices[2].value,
+                                    )
+
+                                    viewModel.poll(pollRequest)
                                     showPollDetails.value = true
                                     showCount.value = false
                                     showPoll.value = false

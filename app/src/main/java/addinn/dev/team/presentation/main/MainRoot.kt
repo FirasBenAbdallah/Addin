@@ -14,9 +14,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.spec.Route
 
 @Composable
-fun MainRoot(finish: () -> Unit) {
+fun MainRoot(finish: () -> Unit, startRoute: Route = NavGraphs.root.startRoute) {
     val navController = rememberNavController()
 
     val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
@@ -26,7 +27,6 @@ fun MainRoot(finish: () -> Unit) {
     if (destination == NavGraphs.root.startRoute.route) {
         BackHandler { finish() }
     }
-
     TeamTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -35,6 +35,7 @@ fun MainRoot(finish: () -> Unit) {
             DestinationsNavHost(
                 navController = navController,
                 navGraph = NavGraphs.root,
+                startRoute = startRoute,
                 dependenciesContainerBuilder = {
                     dependency(AppNavigationProvider(navController))
                 }

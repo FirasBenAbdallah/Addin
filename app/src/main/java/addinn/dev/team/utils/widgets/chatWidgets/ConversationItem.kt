@@ -1,10 +1,9 @@
 package addinn.dev.team.utils.widgets.chatWidgets
 
+import addinn.dev.domain.entity.chat.Chat
 import addinn.dev.team.R
-import addinn.dev.team.utils.navigation.NavigationProvider
-import addinn.dev.team.utils.staticModels.ConversationChat
-import addinn.dev.team.utils.staticModels.MessageStatus
-import androidx.compose.foundation.Image
+import addinn.dev.team.utils.functions.getDate
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,18 +23,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 
 @Composable
-fun ConversationItem(navigator: NavigationProvider, message: ConversationChat) {
+fun ConversationItem(navigate: () -> Unit, message: Chat, uid: String) {
+    // DATE
+    val time = getDate(message.lastMessageDate!!)
+    val receiverUsername = if (message.participant1 == uid) {
+        message.participant2!!
+    } else {
+        message.participant1!!
+    }
+
+    val imageUrl =
+        "https://firebasestorage.googleapis.com/v0/b/team-addinn.appspot.com/o/avatars%2F${receiverUsername}.png?alt=media"
+
     Box(modifier = Modifier.clickable {
-        // TODO: ADD NAVIGATION
-        navigator.navigateToChat()
+        navigate()
     }) {
         Row(
             modifier = Modifier.padding(
@@ -51,15 +62,14 @@ fun ConversationItem(navigator: NavigationProvider, message: ConversationChat) {
                         shape = CircleShape
                     )
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.avatar),
+                    AsyncImage(
+                        model = Uri.parse(imageUrl),
                         contentDescription = "avatar",
-                        contentScale = ContentScale.Crop
+                        modifier = Modifier.clip(CircleShape)
                     )
                 }
             }
 
-            // TODO: CONDITION HERE
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,78 +77,71 @@ fun ConversationItem(navigator: NavigationProvider, message: ConversationChat) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(
-                        text = message.username,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    if (message.amILastSender) {
+                Box(modifier = Modifier.weight(1f)) {
+                    Column {
                         Text(
-                            text = "You: ${message.lastMessage}",
-                            style = TextStyle(
-                                fontWeight = FontWeight.Light
-                            )
+                            text = receiverUsername,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
                         )
-                    } else {
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = message.lastMessage,
+                            text = if (message.participant1 != uid) {
+                                message.lastMessage!!
+                            } else {
+                                "You: ${message.lastMessage!!}"
+                            },
                             style = TextStyle(
                                 fontWeight = FontWeight.Light
                             )
                         )
                     }
-
                 }
-                Column {
+                Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = message.date,
+                        text = time,
+                        maxLines = 1,
                         fontWeight = FontWeight.ExtraLight,
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    when (message.status) {
-                        MessageStatus.RECEIVED -> {
-                            MessageStatusIcon(
-                                iconId = R.drawable.baseline_check_circle_24,
-                                iconColor = Color.Gray,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .align(Alignment.CenterHorizontally)
-                            )
-                        }
 
-                        MessageStatus.READ -> {
-                            MessageStatusIcon(
-                                iconId = R.drawable.baseline_check_24,
-                                iconColor = Color.Gray,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .align(Alignment.CenterHorizontally)
-                            )
-                        }
+                    if (uid == message.lastMessageSenderId!!) {
+                        when (message.lastMessageStatus!!) {
+                            "SENT" -> {
+                                MessageStatusIcon(
+                                    iconId = R.drawable.baseline_check_circle_outline_24,
+                                    iconColor = Color.Gray,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .align(Alignment.CenterHorizontally)
+                                )
+                            }
 
-                        MessageStatus.SENT -> {
-                            MessageStatusIcon(
-                                iconId = R.drawable.baseline_check_circle_outline_24,
-                                iconColor = Color.Gray,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .align(Alignment.CenterHorizontally)
-                            )
+                            "SEEN" -> {
+                                MessageStatusIcon(
+                                    iconId = R.drawable.baseline_check_24,
+                                    iconColor = Color.Blue,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .align(Alignment.CenterHorizontally)
+                                )
+                            }
                         }
-
-                        MessageStatus.ERROR -> {
-                            MessageStatusIcon(
-                                iconId = R.drawable.outline_error_24,
-                                iconColor = Color.Red,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .align(Alignment.CenterHorizontally)
-                            )
+                    } else {
+                        when (message.lastMessageStatus!!) {
+                            "SENT" -> {
+                                MessageStatusIcon(
+                                    iconId = R.drawable.baseline_brightness_1_24,
+                                    iconColor = Color.Blue,
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .align(Alignment.CenterHorizontally)
+                                )
+                            }
                         }
                     }
-
                 }
             }
         }
