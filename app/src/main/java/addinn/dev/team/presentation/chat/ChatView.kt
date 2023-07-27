@@ -56,7 +56,6 @@ fun ChatView(
 
     // CURRENT USER
     val currentUser = sharedViewModel.getUser() /////
-    println("CURRENT USER: ${currentUser.department}")
 
     LaunchedEffect(Unit) {
         conversationViewModel.getLastestMessages(currentUser.username!!)

@@ -1,5 +1,6 @@
 package addinn.dev.team.utils.navigation
 
+import addinn.dev.team.presentation.destinations.AddEventViewDestination
 import addinn.dev.team.presentation.destinations.GroupChatViewDestination
 import addinn.dev.team.presentation.destinations.HelpCenterDestination
 import addinn.dev.team.presentation.destinations.HomeViewDestination
@@ -7,6 +8,8 @@ import addinn.dev.team.presentation.destinations.LoginViewDestination
 import addinn.dev.team.presentation.destinations.MembersViewDestination
 import addinn.dev.team.presentation.destinations.MessagesViewDestination
 import addinn.dev.team.presentation.destinations.NewMessageViewDestination
+import addinn.dev.team.presentation.destinations.PrivateGroupsChatViewDestination
+import addinn.dev.team.presentation.destinations.PrivateGroupsViewDestination
 import addinn.dev.team.presentation.destinations.RecoverViewDestination
 import addinn.dev.team.presentation.destinations.RegisterViewDestination
 import addinn.dev.team.presentation.destinations.ResetViewDestination
@@ -75,5 +78,18 @@ class AppNavigationProvider(
 
     override fun navigateToNewMessage() {
         navController.navigateTo(NewMessageViewDestination)
+    }
+
+    override fun navigateToPrivateGroups() {
+        navController.navigateTo(PrivateGroupsViewDestination)
+    }
+
+    override fun navigateToPrivateGroupsChat(usersCount: Int,
+                                             groupId: String,) {
+        navController.navigateTo(PrivateGroupsChatViewDestination(usersCount = usersCount, groupId = groupId))
+    }
+
+    override fun navigateToAddEvent() {
+        navController.navigateTo(AddEventViewDestination)
     }
 }

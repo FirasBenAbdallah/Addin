@@ -10,4 +10,8 @@ data class Poll(
     var choice1: String?= null,
     var choice2: String?= null,
     var choice3: String?= null,
+    var choiceVote1: String?= null,
+    var choiceVote2: String?= null,
+    var choiceVote3: String?= null,
+    val expirationTime: Long? = null
 ): Parcelable

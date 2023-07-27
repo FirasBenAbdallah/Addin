@@ -3,13 +3,17 @@ package addinn.dev.data.di
 import addinn.dev.data.network.RetrofitInstance
 import addinn.dev.data.remote.MessageNotificationApi
 import addinn.dev.data.repository.auth.AuthRepoImpl
-import addinn.dev.data.repository.poll.PollRepoImpl
-import addinn.dev.domain.repository.auth.AuthRepo
-import addinn.dev.domain.repository.poll.PollRepo
 import addinn.dev.data.repository.chat.MessagesRepoImpl
 import addinn.dev.data.repository.chat.UsersRepoImpl
+import addinn.dev.data.repository.event.EventRepoImpl
+import addinn.dev.data.repository.group.GroupMsgRepoImpl
+import addinn.dev.data.repository.poll.PollRepoImpl
+import addinn.dev.domain.repository.auth.AuthRepo
 import addinn.dev.domain.repository.chat.MessagesRepo
 import addinn.dev.domain.repository.chat.UsersRepo
+import addinn.dev.domain.repository.even.EventRepo
+import addinn.dev.domain.repository.group.GroupRepo
+import addinn.dev.domain.repository.poll.PollRepo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -64,9 +68,25 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideGroupRepository(
+        database: FirebaseFirestore,
+    ): GroupRepo {
+        return GroupMsgRepoImpl(database = database)
+    }
+
+    @Singleton
+    @Provides
+    fun provideEventRepository(
+        database: FirebaseFirestore,
+    ): EventRepo {
+        return EventRepoImpl(database = database)
+    }
+
+    @Singleton
+    @Provides
     fun providePollRepository(
         database: FirebaseFirestore,
     ): PollRepo {
-        return PollRepoImpl( database = database)
+        return PollRepoImpl(database = database)
     }
 }

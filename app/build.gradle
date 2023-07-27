@@ -131,6 +131,13 @@ dependencies {
     // COIL
     implementation "io.coil-kt:coil-compose:2.4.0"
 
+    // CALENDAR
+    implementation 'com.kizitonwose.calendar:compose:2.3.0'
+
+    // TIMEPICKER
+    implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.7.2")
+    implementation 'com.google.firebase:firebase-firestore:24.7.0'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

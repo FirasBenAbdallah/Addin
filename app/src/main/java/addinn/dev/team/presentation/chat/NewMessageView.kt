@@ -271,6 +271,6 @@ fun UserCheckItem(user: User, isChecked: Boolean, onCheckChange: (Boolean) -> Un
             enabled = true,
             modifier = Modifier.shadow(0.dp, shape = RoundedCornerShape(16.dp), clip = true),
         )
-        Text(text = user.email!!, modifier = Modifier.padding(8.dp))
+        Text(text = user.username!!, modifier = Modifier.padding(8.dp))
     }
 }
