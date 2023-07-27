@@ -1,7 +1,10 @@
 package addinn.dev.team.presentation.polls
 
+import addinn.dev.domain.entity.poll.Poll
 import addinn.dev.domain.entity.poll.PollRequest
+import addinn.dev.domain.entity.response.Response
 import addinn.dev.team.viewModel.PollViewModel
+import addinn.dev.team.viewModel.SharedViewModel
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +33,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +59,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType", "ModifierParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PollsView(/*navigator: NavigationProvider?,*/viewModel: PollViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
+fun PollsView(/*navigator: NavigationProvider?,*/viewModel: PollViewModel = hiltViewModel(),
+              modifier: Modifier = Modifier,
+              sharedViewModel: SharedViewModel = hiltViewModel()
+) {
 
     // Drop down menu
     val listOfChoice = listOf("2", "3", "4", "5", "6", "7", "8", "9", "10")
@@ -69,168 +77,182 @@ fun PollsView(/*navigator: NavigationProvider?,*/viewModel: PollViewModel = hilt
     val showPoll = remember { mutableStateOf(false) }
     val showCount = remember { mutableStateOf(false) }
 //    val choiceCountInput = remember { mutableStateOf("") }
+    val currentUser = sharedViewModel.getUser()
+    val pollState by viewModel.pollState.collectAsState()
 
-    // Composable functions
-    Scaffold(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .padding(top = 16.dp, end = 16.dp, start = 16.dp)
-                .verticalScroll(rememberScrollState())
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(30.dp)
-        ) {
-            // Button to create a new poll
-            Button(
-                onClick = {
-                    showCount.value = true
-                    showPollDetails.value = false
-                },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .clip(RoundedCornerShape(50))
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = "Create Poll",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+    // Trigger the getPolls() function when the composable is first displayed
+    val effectLaunched = remember { mutableStateOf(false) }
 
-            // Polls Number of Choices
-            if (showCount.value) {
-                /*Column(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(end = 16.dp)
-                ) {
-                    OutlinedTextField(
-                        value = choiceCountInput.value,
-                        onValueChange = { value ->
-                            choiceCountInput.value = value
-                        },
-                        label = { Text("Number of Choices") },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(onDone = {
-                            showPoll.value = true
-                            val choiceCount = choiceCountInput.value.toIntOrNull() ?: 0
-                            val choices = MutableList(choiceCount) { mutableStateOf("") }
-                            polls.clear()
-                            polls.add(
-                                PollData(
-                                    mutableStateOf(""),
-                                    choices
+
+    // Get the pollState value and based on that show the appropriate composable
+    when (pollState) {
+        is Response.Error -> {
+            // Handle error state
+            Text(text = "Error: ${(pollState as Response.Error).error}")
+        }
+
+        is Response.Success -> {
+            // Handle success state
+            val pollsAll = (pollState as Response.Success<List<Poll>>).data
+
+            if (pollsAll.isNotEmpty()) {
+                pollsAll.forEachIndexed { i, _ ->
+                    votes.add(
+                        pollsAll[i].let {
+                            PollData(
+                                mutableStateOf(it.id!!),
+                                mutableStateOf(it.question ?: "Question not available"),
+                                mutableListOf(
+                                    mutableStateOf(it.choice1 ?: "Choice1 not available"),
+                                    mutableStateOf(it.choice2 ?: "Choice2 not available"),
+                                    mutableStateOf(it.choice3 ?: "Choice3 not available")
+                                ),
+                                mutableStateListOf(
+                                    mutableStateOf(it.choiceVote1 ?: "0.00%"),
+                                    mutableStateOf(it.choiceVote2 ?: "0.00%"),
+                                    mutableStateOf(it.choiceVote3 ?: "0.00%")
                                 )
                             )
-                            focusManager.clearFocus()
-                        }),
-                        modifier = Modifier.padding(top = 8.dp)
+                        }
                     )
-                }*/
-                Box(
-                    modifier = Modifier
-                        .width(250.dp)
-                        .shadow(0.dp, shape = RoundedCornerShape(8.dp), clip = true)
-                        .align(Alignment.CenterHorizontally)
-                ) {
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { expanded = it },
-                    ) {
-                        OutlinedTextField(
-                            value = selectedText,
-                            onValueChange = {},
-                            shape = RoundedCornerShape(10.dp),
-                            readOnly = true,
-                            label = { Text("Choice number") },
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = Color.LightGray,
-                                unfocusedBorderColor = Color.LightGray
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(),
-                            textStyle = TextStyle(fontSize = 16.sp),
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Outlined.List,
-                                    contentDescription = "Home",
-                                    tint = Color.Gray
-                                )
-                            },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                            }
-                        )
+                }
+            } else {
+                // Handle empty state
+                Text(text = "No polls found")
+            }
+        }
 
-                        ExposedDropdownMenu(
+        Response.Loading -> {
+            // Handle loading state if needed
+            Text(text = "Loading...")
+        }
+    }
+    // LaunchedEffect to fetch data only when effectLaunched is false
+    LaunchedEffect(key1 = Unit) {
+        if (!effectLaunched.value) {
+            viewModel.getPolls()
+            effectLaunched.value = true
+        }
+    }
+
+    // Check if the user is an admin or not
+    if (currentUser.department == "Administration") {
+        // Composable functions
+        Scaffold(modifier = modifier) {
+            Column(
+                modifier = Modifier
+                    .padding(top = 16.dp, end = 16.dp, start = 16.dp)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(30.dp)
+            ) {
+                // Button to create a new poll
+                Button(
+                    onClick = {
+                        showCount.value = true
+                        showPollDetails.value = false
+                    },
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .clip(RoundedCornerShape(50))
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = "Create Poll",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                // Polls Number of Choices
+                if (showCount.value) {
+                    Box(
+                        modifier = Modifier
+                            .width(250.dp)
+                            .shadow(0.dp, shape = RoundedCornerShape(8.dp), clip = true)
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        ExposedDropdownMenuBox(
                             expanded = expanded,
-                            onDismissRequest = { expanded = false }
+                            onExpandedChange = { expanded = it },
                         ) {
-                            listOfChoice.forEach { item ->
-                                DropdownMenuItem(
-                                    text = { Text(text = item) },
-                                    onClick = {
-                                        selectedText = item
-                                        expanded = false
-                                        showPoll.value = true
-                                        val choices =
-                                            MutableList(item.toInt()) { mutableStateOf("") }
-                                        polls.clear()
-                                        polls.add(
-                                            PollData(
-                                                mutableStateOf(""),
-                                                choices
+                            OutlinedTextField(
+                                value = selectedText,
+                                onValueChange = {},
+                                shape = RoundedCornerShape(10.dp),
+                                readOnly = true,
+                                label = { Text("Choice number") },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    focusedBorderColor = Color.LightGray,
+                                    unfocusedBorderColor = Color.LightGray
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(),
+                                textStyle = TextStyle(fontSize = 16.sp),
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.List,
+                                        contentDescription = "Home",
+                                        tint = Color.Gray
+                                    )
+                                },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                }
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                listOfChoice.forEach { item ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = item) },
+                                        onClick = {
+                                            selectedText = item
+                                            expanded = false
+                                            showPoll.value = true
+                                            val choices =
+                                                MutableList(item.toInt()) { mutableStateOf("") }
+                                            val choiceVotes =
+                                                MutableList(item.toInt()) { mutableStateOf("0.00%") }
+                                            polls.clear()
+                                            polls.add(
+                                                PollData(
+                                                    mutableStateOf(""),
+                                                    mutableStateOf(""),
+                                                    choices,
+                                                    choiceVotes
+                                                )
                                             )
-                                        )
-                                    }
-                                )
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // Polls list body
-            polls.forEachIndexed { index, poll ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 16.dp)
-                ) {
-                    Column(
+                // Polls list body
+                polls.forEachIndexed { index, poll ->
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.Center)
+                            .fillMaxSize()
+                            .padding(vertical = 16.dp)
                     ) {
-                        if (showPoll.value) {
-                            // Display the poll title
-                            Text(text = "Poll ${index + 1}", fontWeight = FontWeight.Bold)
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                        ) {
+                            if (showPoll.value) {
+                                // Display the poll title
+                                Text(text = "Poll ${index + 1}", fontWeight = FontWeight.Bold)
 
-                            // Display the poll question
-                            OutlinedTextField(
-                                value = poll.question.value,
-                                onValueChange = { value -> poll.question.value = value },
-                                label = { Text("Question") },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Next
-                                ),
-                                keyboardActions = KeyboardActions(onNext = {
-                                    focusManager.moveFocus(FocusDirection.Next)
-                                }),
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
-
-                            // Display the poll choices
-                            poll.choices.forEachIndexed { choiceIndex, choice ->
+                                // Display the poll question
                                 OutlinedTextField(
-                                    value = choice.value,
-                                    onValueChange = { value ->
-                                        poll.choices[choiceIndex].value = value
-                                    },
-                                    label = { Text("Choice ${choiceIndex + 1}") },
+                                    value = poll.question.value,
+                                    onValueChange = { value -> poll.question.value = value },
+                                    label = { Text("Question") },
                                     keyboardOptions = KeyboardOptions(
                                         keyboardType = KeyboardType.Text,
                                         imeAction = ImeAction.Next
@@ -240,45 +262,75 @@ fun PollsView(/*navigator: NavigationProvider?,*/viewModel: PollViewModel = hilt
                                     }),
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
-                            }
-                            // View Polls button
-                            Button(
-                                onClick = {
-                                    val pollRequest = PollRequest(
-                                        question = poll.question.value,
-                                        choice1 = poll.choices[0].value,
-                                        choice2 = poll.choices[1].value,
-                                        choice3 = poll.choices[2].value,
-                                    )
 
-                                    viewModel.poll(pollRequest)
-                                    showPollDetails.value = true
-                                    showCount.value = false
-                                    showPoll.value = false
-                                    votes.add(poll)
-                                },
-                                modifier = Modifier.padding(top = 16.dp)
-                            ) {
-                                Text(text = "View Polls")
+                                // Display the poll choices
+                                poll.choices.forEachIndexed { choiceIndex, choice ->
+                                    OutlinedTextField(
+                                        value = choice.value,
+                                        onValueChange = { value ->
+                                            poll.choices[choiceIndex].value = value
+                                        },
+                                        label = { Text("Choice ${choiceIndex + 1}") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        keyboardActions = KeyboardActions(onNext = {
+                                            focusManager.moveFocus(FocusDirection.Next)
+                                        }),
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+                                // View Polls button
+                                Button(
+                                    onClick = {
+                                        val pollRequest = PollRequest(
+                                            question = poll.question.value,
+                                            choice1 = poll.choices[0].value,
+                                            choice2 = poll.choices[1].value,
+                                            choice3 = poll.choices[2].value,
+                                            choiceVote1 = "0.00%",
+                                            choiceVote2 = "0.00%",
+                                            choiceVote3 = "0.00%"
+                                        )
+
+                                        viewModel.poll(pollRequest)
+                                        showPollDetails.value = true
+                                        showCount.value = false
+                                        showPoll.value = false
+                                        votes.add(poll)
+                                    },
+                                    modifier = Modifier.padding(top = 16.dp)
+                                ) {
+                                    Text(text = "View Polls")
+                                }
+
                             }
                         }
                     }
                 }
+
+                // PollsDetailsView
+                votes.forEachIndexed { _, poll ->
+//                    if (showPollDetails.value) {
+                        PollsDetailsView(poll = poll)
+//                    }
+                }
             }
-            // PollsDetailsView
-            votes.forEachIndexed { _, poll ->
-                if (showPollDetails.value) {
+        }
+    } else {
+        Scaffold(modifier = modifier) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(30.dp)
+            ) {
+                votes.forEachIndexed { j, poll ->
                     PollsDetailsView(poll = poll)
                 }
             }
         }
     }
 }
-
-/*
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ResetPreview() {
-    PollsDetailsView(null)
-}
-*/

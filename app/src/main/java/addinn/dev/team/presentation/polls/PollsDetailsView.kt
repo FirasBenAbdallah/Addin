@@ -25,6 +25,7 @@ fun PollsDetailsView(poll: PollData/*, modifier: Modifier = Modifier*/) {
     val isTextVisible = remember { mutableStateOf(false) }
     val composedChoicesText = remember { mutableStateOf("") }
 
+    println("PollsDetailsView: ${poll.id.value}")
     // Poll details column
     Column(
         modifier = Modifier
@@ -62,11 +63,13 @@ fun PollsDetailsView(poll: PollData/*, modifier: Modifier = Modifier*/) {
                     poll.totalSelectionCount.value++
                 }
                 composedChoicesText.value = poll.choices.joinToString("\n") { it.value }
+
             },
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Text(text = "Submit Vote")
         }
+
 
         // Poll choices text
         if (poll.totalSelectionCount.value > 0) {
@@ -75,11 +78,14 @@ fun PollsDetailsView(poll: PollData/*, modifier: Modifier = Modifier*/) {
                     poll.selectionCounts[index].value / poll.totalSelectionCount.value.toFloat() * 100
                 val statString = String.format("%.2f", stat)
                 Text(
-                    text = "${choice.value}: ${statString}%",
+                    text = "${choice.value}: ${poll.choiceVotes[index].value}",
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
+            Text(text = "Id: ${poll.id.value}",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 8.dp))
         } else {
             Text(
                 text = "No votes yet",
