@@ -26,7 +26,6 @@ class PollRepoImpl(
                 choiceVote1 = pollRequest.choiceVote1,
                 choiceVote2 = pollRequest.choiceVote2,
                 choiceVote3 = pollRequest.choiceVote3,
-                expirationTime = System.currentTimeMillis() // Store the creation timestamp
             )
             val newDoc = database.collection("polls").document()
 

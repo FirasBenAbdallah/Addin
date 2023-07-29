@@ -13,6 +13,5 @@ data class PollResponse(
     var choiceVote1: String?= null,
     var choiceVote2: String?= null,
     var choiceVote3: String?= null,
-    val expirationTime: Long? = null
 ) : Parcelable
 
