@@ -1,6 +1,7 @@
 package addinn.dev.team.utils.navigation
 
 import addinn.dev.team.presentation.destinations.AddEventViewDestination
+import addinn.dev.team.presentation.destinations.AddPollViewDestination
 import addinn.dev.team.presentation.destinations.GroupChatViewDestination
 import addinn.dev.team.presentation.destinations.HelpCenterDestination
 import addinn.dev.team.presentation.destinations.HomeViewDestination
@@ -91,5 +92,9 @@ class AppNavigationProvider(
 
     override fun navigateToAddEvent() {
         navController.navigateTo(AddEventViewDestination)
+    }
+
+    override fun navigateToAddPoll() {
+        navController.navigateTo(AddPollViewDestination)
     }
 }

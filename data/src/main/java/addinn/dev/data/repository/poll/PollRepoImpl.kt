@@ -2,11 +2,9 @@ package addinn.dev.data.repository.poll
 
 import addinn.dev.domain.entity.poll.Poll
 import addinn.dev.domain.entity.poll.PollRequest
-import addinn.dev.domain.entity.poll.PollResponse
 import addinn.dev.domain.entity.response.Response
 import addinn.dev.domain.repository.poll.PollRepo
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -15,25 +13,17 @@ import kotlinx.coroutines.flow.callbackFlow
 class PollRepoImpl(
     private val database: FirebaseFirestore
 ) : PollRepo {
-    override suspend fun addPoll(pollRequest: PollRequest): Flow<Response<PollResponse>> =
+    override suspend fun addPoll(pollRequest: PollRequest): Flow<Response<Boolean>> =
         callbackFlow {
             trySend(Response.Loading)
-            val poll = PollResponse(
-                question = pollRequest.question,
-                choice1 = pollRequest.choice1,
-                choice2 = pollRequest.choice2,
-                choice3 = pollRequest.choice3,
-                choiceVote1 = pollRequest.choiceVote1,
-                choiceVote2 = pollRequest.choiceVote2,
-                choiceVote3 = pollRequest.choiceVote3,
-            )
+
             val newDoc = database.collection("polls").document()
 
-            newDoc.set(poll)
+            newDoc.set(pollRequest)
                 .addOnSuccessListener {
                     database.collection("polls").document(newDoc.id).update("id", newDoc.id)
                         .addOnSuccessListener {
-                            trySend(Response.Success(poll))
+                            trySend(Response.Success(true))
                         }
                 }.addOnFailureListener {
                     trySend(Response.Error(it.localizedMessage ?: "Error Occurred!"))
@@ -44,52 +34,44 @@ class PollRepoImpl(
             }
         }
 
-
-
-    /*override suspend fun addPoll(pollRequest: PollRequest): Flow<Response<Pair<String, PollResponse>>> =
-        callbackFlow {
-            trySend(Response.Loading)
-            val poll = PollResponse(
-                question = pollRequest.question,
-                choice1 = pollRequest.choice1,
-                choice2 = pollRequest.choice2,
-                choice3 = pollRequest.choice3,
-                choiceVote1 = pollRequest.choiceVote1,
-                choiceVote2 = pollRequest.choiceVote2,
-                choiceVote3 = pollRequest.choiceVote3,
-            )
-            val newDoc = database.collection("polls").document()
-
-            newDoc.set(poll)
-                .addOnSuccessListener {
-                    database.collection("polls").document(newDoc.id).update("id", newDoc.id)
-                        .addOnSuccessListener {
-                            trySend(Response.Success(newDoc.id to poll))
-                        }
-                }.addOnFailureListener {
-                    trySend(Response.Error(it.localizedMessage ?: "Error Occurred!"))
-                }
-
-            awaitClose {
-                close()
-            }
-        }*/
-
-
-    override suspend fun getPolls(): Flow<Response<List<Poll>>> = callbackFlow {
+    override suspend fun getPolls(): Flow<Response<List<Poll>>> = callbackFlow  {
         trySend(Response.Loading)
-        database.collection("polls").get().addOnSuccessListener { snapshot ->
-            val polls = snapshot.documents.mapNotNull { document ->
-                document.toObject<Poll>()
+
+        val query = database.collection("polls")
+
+        val listenerRegistration = query.addSnapshotListener { value, error ->
+            if (error != null) {
+                trySend(Response.Error(error.localizedMessage ?: "Error Occurred!"))
+                return@addSnapshotListener
             }
-            if (polls.isNotEmpty()) {
+
+            if (value != null) {
+                val polls = value.toObjects(Poll::class.java)
                 trySend(Response.Success(polls))
-            } else {
-                trySend(Response.Error("No polls found"))
             }
-        }.addOnFailureListener { exception ->
-            trySend(Response.Error(exception.localizedMessage ?: "Error occurred"))
         }
+
+        awaitClose {
+            listenerRegistration.remove()
+            close()
+        }
+    }
+
+    override suspend fun updatePoll(id:String,pollRequest: PollRequest): Flow<Response<Boolean>> = callbackFlow {
+        trySend(Response.Loading)
+
+        database.collection("polls").document(id).update(
+            "choiceVote1", pollRequest.choiceVote1,
+            "choiceVote2", pollRequest.choiceVote2,
+            "choiceVote3", pollRequest.choiceVote3,
+            "totalVotes", pollRequest.totalVotes,
+            "votesBy", pollRequest.votesBy
+        ).addOnSuccessListener {
+            trySend(Response.Success(true))
+        }.addOnFailureListener {
+            trySend(Response.Error(it.localizedMessage ?: "Error Occurred!"))
+        }
+
         awaitClose {
             close()
         }

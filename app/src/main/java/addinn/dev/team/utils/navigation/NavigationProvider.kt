@@ -19,4 +19,5 @@ interface NavigationProvider {
     )
 
     fun navigateToAddEvent()
+    fun navigateToAddPoll()
 }

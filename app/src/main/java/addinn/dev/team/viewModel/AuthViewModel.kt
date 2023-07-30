@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -147,12 +148,14 @@ class AuthViewModel @Inject constructor(
         loginUseCase.invoke(loginRequest).collectLatest {
             when (it) {
                 is Response.Error -> {
+                    Timber.e(it.error)
+                    Timber.e("it.error")
                     _loginState.value = Response.Error(it.error)
                     _loadingState.value = false
                 }
 
                 Response.Loading -> {
-
+                Timber.d("Loading")
                 }
 
                 is Response.Success -> {

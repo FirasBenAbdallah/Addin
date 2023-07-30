@@ -1,15 +1,16 @@
 package addinn.dev.team.presentation.polls
 
+import addinn.dev.domain.entity.poll.Poll
+import addinn.dev.team.utils.widgets.pollWidget.AdvancedRadioButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -19,13 +20,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun PollsDetailsView(poll: PollData/*, modifier: Modifier = Modifier*/) {
+fun PollsDetailsView(poll: Poll,onSelect : (Int) -> Unit,userId:String) {
 
-    // Local variables
-    val isTextVisible = remember { mutableStateOf(false) }
-    val composedChoicesText = remember { mutableStateOf("") }
+    val choices = remember { mutableStateOf(emptyList<String>()) }
+    val selectedIndex: MutableState<Int?> = remember { mutableStateOf(null) }
 
-    println("PollsDetailsView: ${poll.id.value}")
+    choices.value = listOf(
+        poll.choice1!!,
+        poll.choice2!!,
+        poll.choice3!!
+    )
+
+    val isClickable = if(poll.votesBy == null) true else !poll.votesBy?.contains(userId)!!
+
+    val totalVotes = if(poll.totalVotes == null) 0 else poll.totalVotes
+
     // Poll details column
     Column(
         modifier = Modifier
@@ -35,71 +44,44 @@ fun PollsDetailsView(poll: PollData/*, modifier: Modifier = Modifier*/) {
     ) {
         // Poll question label
         Text(
-            text = poll.question.value,
+            text = poll.question!!,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             color = colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Poll choices radio buttons
-        poll.choices.forEachIndexed { index, choice ->
-            AdvancedRadioButton(
-                text = choice.value,
-                isSelected = poll.selectedOptionIndex.value == index,
-                onSelected = {
-                    poll.selectedOptionIndex.value = index
-                    isTextVisible.value = true
-                },
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        if(!poll.votesBy.isNullOrEmpty() && poll.votesBy?.contains(userId)!!){
+            Text(
+                text = "You have already voted",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
 
-        // Button Submit Vote
-        Button(
-            onClick = {
-                poll.selectedOptionIndex.value?.let { selectedIndex ->
-                    poll.selectionCounts[selectedIndex].value++
-                    poll.totalSelectionCount.value++
-                }
-                composedChoicesText.value = poll.choices.joinToString("\n") { it.value }
-
-            },
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Text(text = "Submit Vote")
-        }
-
-
-        // Poll choices text
-        if (poll.totalSelectionCount.value > 0) {
-            poll.choices.forEachIndexed { index, choice ->
-                val stat =
-                    poll.selectionCounts[index].value / poll.totalSelectionCount.value.toFloat() * 100
-                val statString = String.format("%.2f", stat)
-                Text(
-                    text = "${choice.value}: ${poll.choiceVotes[index].value}",
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-            Text(text = "Id: ${poll.id.value}",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 8.dp))
-        } else {
-            Text(
-                text = "No votes yet",
-                fontWeight = FontWeight.Bold,
+        // Poll choices radio buttons
+        choices.value.forEachIndexed { index, choice ->
+            AdvancedRadioButton(
+                text = choice,
+                isSelected = selectedIndex.value == index,
+                onSelected = {
+                    selectedIndex.value = index
+                    onSelect(index)
+                },
+                isClickable = isClickable,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
 
-        // Poll choices text
+        // Poll total votes label
         Text(
-            text = "Total Votes: ${poll.totalSelectionCount.value}",
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(top = 8.dp),
-            color = colorScheme.onBackground
+            text = "Total votes: $totalVotes",
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(top = 16.dp)
         )
     }
 }
