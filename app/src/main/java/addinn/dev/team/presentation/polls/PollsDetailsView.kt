@@ -23,12 +23,20 @@ import androidx.compose.ui.unit.sp
 fun PollsDetailsView(poll: Poll,onSelect : (Int) -> Unit,userId:String) {
 
     val choices = remember { mutableStateOf(emptyList<String>()) }
+    val votes = remember { mutableStateOf(emptyList<Int>()) }
     val selectedIndex: MutableState<Int?> = remember { mutableStateOf(null) }
+    val percentage = remember { mutableStateOf(0.0) }
 
     choices.value = listOf(
         poll.choice1!!,
         poll.choice2!!,
         poll.choice3!!
+    )
+
+    votes.value = listOf(
+        poll.choiceVote1!!,
+        poll.choiceVote2!!,
+        poll.choiceVote3!!
     )
 
     val isClickable = if(poll.votesBy == null) true else !poll.votesBy?.contains(userId)!!
@@ -71,6 +79,26 @@ fun PollsDetailsView(poll: Poll,onSelect : (Int) -> Unit,userId:String) {
                     onSelect(index)
                 },
                 isClickable = isClickable,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        // Poll choices votes
+        votes.value.forEachIndexed { index, vote ->
+            val calculatedPercentage = (vote.toDouble() / totalVotes!!.toDouble()) * 100.0
+            percentage.value = calculatedPercentage
+
+            val formattedPercentage = if (percentage.value % 1 == 0.0) {
+                "%.0f%%".format(percentage.value)
+            } else {
+                "%.2f%%".format(percentage.value)
+            }
+
+            Text(
+                text = "${choices.value[index]}: $formattedPercentage",
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = Color.Gray,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
